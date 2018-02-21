@@ -1,6 +1,6 @@
 {
   "name": "modapp-base-component",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collection of base components following the component interface of modapp.",
   "main": "./index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "babel-preset-env": "^1.6.1"
   },
   "dependencies": {
-    "modapp-l10n": "^1.0.0",
+    "modapp-l10n": "^1.0.1",
     "modapp-utils": "^1.0.1"
   }
 }

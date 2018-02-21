@@ -1,4 +1,4 @@
-import Elem from './Elem';
+import RootElem from './RootElem';
 import l10n from 'modapp-l10n';
 import * as anim from 'modapp-utils/anim.js';
 import * as obj from 'modapp-utils/obj.js';
@@ -6,7 +6,7 @@ import * as obj from 'modapp-utils/obj.js';
 /**
  * A text component
  */
-export default class {
+class Txt extends RootElem {
 
 	/**
 	 * Creates an instance of Txt
@@ -25,8 +25,8 @@ export default class {
 			events: { type: '?object' }
 		});
 
-		this.node = new Elem(n => n.elem(opt.tagName, opt));
-		this.el = null;
+		super(opt.tagName, opt);
+
 		this.text = text || "";
 		this.animId = null;
 		this.rendered = null;
@@ -38,77 +38,51 @@ export default class {
 	 */
 	setText(text) {
 		text = text || "";
+		// [TODO] Do an l10n equal compare
 		if (text === this.text) {
 			return this;
 		}
 
 		this.text = text;
-		if (!this.el) {
+		let el = super.getElement();
+		if (!el) {
 			return this;
 		}
 
 		anim.stop(this.animId);
 
 		if (this.rendered === this.text) {
-			this.animId = anim.fade(this.el, 1);
+			this.animId = anim.fade(el, 1);
 			return this;
 		}
 
-		this.animId = anim.fade(this.el, 0, {
+		this.animId = anim.fade(el, 0, {
 			callback: () => {
-				if (!this.el) {
+				let el = super.getElement();
+				if (!el) {
 					return;
 				}
 
 				this.rendered = this.text;
-				this.el.textContent = l10n.t(this.text);
-				this.animId = anim.fade(this.el, 1);
+				el.textContent = l10n.t(this.text);
+				this.animId = anim.fade(el, 1);
 			}
 		});
 
 		return this;
 	}
 
-	setClassName(className) {
-		this.node.setClassName(className);
-		return this;
-	}
-
-	setDisabled(isDisabled) {
-		this.node.setDisabled(isDisabled);
-		return this;
-	}
-
-	setAttribute(name, value) {
-		this.node.setAttribute(name, value);
-		return this;
-	}
-
-	removeAttribute(name) {
-		this.node.removeAttribute(name);
-		return this;
-	}
-
-	setEvent(name, callback) {
-		this.node.setEvent(name, callback);
-		return this;
-	}
-
-	removeEvent(name, callback) {
-		this.node.removeEvent(name);
-		return this;
-	}
-
 	render(el) {
-		this.el = this.node.render(el);
-		this.el.textContent = l10n.t(this.text);
-		return this.el;
+		let nodeEl = super.render(el);
+		nodeEl.textContent = l10n.t(this.text);
+		return nodeEl;
 	}
 
 	unrender() {
 		anim.stop(this.animId);
-		this.node.unrender();
+		super.unrender();
 		this.rendered = null;
-		this.el = null;
 	}
 }
+
+export default Txt;

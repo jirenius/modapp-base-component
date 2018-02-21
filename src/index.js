@@ -1,21 +1,10 @@
 /**
  * Collection of base components following the component interface of modapp.
- * @module modapp-base-component
  */
 
-import elem from './Elem.js';
-import txt from './Txt.js';
-
-/**
- * Elem class.
- * @type {Elem}
- */
-let Elem = elem;
-
-/**
- * Txt class.
- * @type {Txt}
- */
-let Txt = txt;
+import Button from './Button.js';
+import Elem from './Elem.js';
+import RootElem from './RootElem.js';
+import Txt from './Txt.js';
 
 export {Elem, Txt};

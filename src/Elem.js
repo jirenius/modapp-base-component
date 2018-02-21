@@ -117,21 +117,21 @@ class Elem {
 		this.node = node;
 		this.idNode = {};
 
-		this.element = null;
+		this.el = null;
 
 		this._getNodeIds(node);
 	}
 
 	render(div) {
-		if (this.element) {
-			throw "Already rendered";
+		if (this.el) {
+			throw new Error("Already rendered");
 		}
 
-		return this.element = this._renderNode(div, this.node);
+		return this.el = this._renderNode(div, this.node);
 	}
 
 	unrender() {
-		if (!this.element) {
+		if (!this.el) {
 			return;
 		}
 
@@ -146,9 +146,9 @@ class Elem {
 		this._unrenderNode(this.node);
 
 		if (this._getType(this.node) !== 'component') {
-			this.element.parentNode.removeChild(this.element);
+			this.el.parentNode.removeChild(this.el);
 		}
-		this.element = null;
+		this.el = null;
 	}
 
 	/**
@@ -156,7 +156,7 @@ class Elem {
 	 * @returns {?App~component|Node} Component or null if there is no component for the given id.
 	 */
 	getElement() {
-		return this.element;
+		return this.el;
 	}
 
 	/**
@@ -276,6 +276,56 @@ class Elem {
 			this._removeAttribute(node, 'disabled');
 		}
 		return this;
+	}
+
+	setEvent(event, callback) {
+		return this._setEvent(this.node, event, callback);
+	}
+
+	removeEvent(event) {
+		return this.setEvent(event);
+	}
+
+	setNodeEvent(id, event, callback) {
+		return this._setEvent(this.getNode(id), event, callback);
+	}
+
+	removeNodeEvent(id, event) {
+		return this.setNodeEvent(id, event);
+	}
+
+	_setEvent(node, event, callback) {
+		this._validateIsTag(node);
+
+		let oldcb = node.events ? node.events[event] : null;
+
+		// Remove any existing event listeners
+		if (oldcb) {
+			if (this.eventListeners) {
+				node.el.removeEventListener(event, oldcb);
+				this.eventListeners = this.eventListeners.filter(evl => evl[0] === node.el && evl[1] === event);
+				delete node.events[event];
+			}
+
+			if (!callback) {
+				delete node.events[event];
+				if (!Object.keys(node.events)) {
+					delete node.events;
+				}
+			}
+		}
+
+		if (!callback) {
+			return;
+		}
+
+		node.events = node.events || {};
+		node.events[event] = callback;
+
+		if (node.el) {
+			node.el.addEventListener(event, callback);
+			this.eventListeners.push([node.el, event, callback]);
+		}
 	}
 
 	_validateIsTag(node) {
