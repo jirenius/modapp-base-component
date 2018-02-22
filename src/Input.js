@@ -30,7 +30,6 @@ class Input extends RootElem {
 		super('input', opt);
 
 		this.value = value || "";
-		this.rendered = null;
     }
 
     /**
@@ -74,7 +73,6 @@ class Input extends RootElem {
 
 	unrender() {
 		super.unrender();
-		this.rendered = null;
 	}
 }
 

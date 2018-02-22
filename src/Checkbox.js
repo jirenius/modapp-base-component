@@ -8,7 +8,7 @@ class Checkbox extends RootElem {
 
 	/**
 	 * Creates an instance of Checkbox
-	 * @param {string} value Initial value.
+	 * @param {boolean} checked Initial value.
 	 * @param {object} [opt] Optional parameters.
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value attributes object
@@ -31,7 +31,6 @@ class Checkbox extends RootElem {
 		super('input', opt);
 
 		this.checked = checked || false;
-		this.rendered = null;
     }
 
     /**
@@ -75,7 +74,6 @@ class Checkbox extends RootElem {
 
 	unrender() {
 		super.unrender();
-		this.rendered = null;
 	}
 }
 
