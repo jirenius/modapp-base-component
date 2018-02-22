@@ -7,4 +7,4 @@ import Elem from './Elem.js';
 import RootElem from './RootElem.js';
 import Txt from './Txt.js';
 
-export {Elem, Txt};
+export {Button, Elem, RootElem, Txt};

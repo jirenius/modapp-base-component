@@ -44,6 +44,7 @@ let n = {
 	 * @param {object} [opt.properties] Key/value object with properties.
 	 * @param {object} [opt.events] Key/value object with events, where the key is the event name, and the value is the callback function.
 	 * @param {Array.<Elem~node>} [children] Array of child nodes
+	 * @returns {node}
 	 */
 	elem: function(id, tagName, opt, children) {
 		if (typeof tagName === 'object') {
@@ -165,7 +166,7 @@ class Elem {
 
 	/**
 	 * Gets a node by its id
-	 * @param {string} componentId Id of the component
+	 * @param {string} id Id of the component
 	 * @returns {App~component|?Node} Component or rendered node (null if not rendered)..
 	 */
 	getNode(id) {
@@ -399,21 +400,21 @@ class Elem {
 		node.el = null;
 
 		switch (this._getType(node)) {
-		case 'tag':
-			if (!node.children) {
+			case 'tag':
+				if (!node.children) {
+					break;
+				}
+
+				// Iterate over the children
+				for (var i = 0; i < node.children.length; i++) {
+					this._getNodeIds(node.children[i]);
+				}
+
 				break;
-			}
 
-			// Iterate over the children
-			for (var i = 0; i < node.children.length; i++) {
-				this._getNodeIds(node.children[i]);
-			}
-
-			break;
-
-		case 'component':
-			node.el = node.component;
-			break;
+			case 'component':
+				node.el = node.component;
+				break;
 		}
 
 	}
@@ -436,98 +437,98 @@ class Elem {
 
 	_renderNode(div, node) {
 		switch (this._getType(node)) {
-		case 'tag':
-			let el = document.createElement(node.tagName);
+			case 'tag':
+				let el = document.createElement(node.tagName);
 
-			if (node.attributes) {
-				for (let key in node.attributes) {
-					if (node.attributes.hasOwnProperty(key)) {
-						el.setAttribute(key, node.attributes[key]);
+				if (node.attributes) {
+					for (let key in node.attributes) {
+						if (node.attributes.hasOwnProperty(key)) {
+							el.setAttribute(key, node.attributes[key]);
+						}
 					}
 				}
-			}
 
-			if (node.properties) {
-				for (let key in node.properties) {
-					if (node.properties.hasOwnProperty(key)) {
-						el[key] = node.properties[key];
-						node.properties[key] = el[key];
+				if (node.properties) {
+					for (let key in node.properties) {
+						if (node.properties.hasOwnProperty(key)) {
+							el[key] = node.properties[key];
+							node.properties[key] = el[key];
+						}
 					}
 				}
-			}
 
-			if (node.events) {
-				this.eventListeners = this.eventListeners || [];
-				for (let key in node.events) {
-					if (node.events.hasOwnProperty(key)) {
-						let cb = node.events[key];
-						el.addEventListener(key, cb);
-						this.eventListeners.push([el, key, cb]);
+				if (node.events) {
+					this.eventListeners = this.eventListeners || [];
+					for (let key in node.events) {
+						if (node.events.hasOwnProperty(key)) {
+							let cb = node.events[key];
+							el.addEventListener(key, cb);
+							this.eventListeners.push([el, key, cb]);
+						}
 					}
 				}
-			}
 
-			if (node.className) {
-				el.className = Array.isArray(node.className)
-					? node.className.join(' ')
-					: node.className;
-			}
+				if (node.className) {
+					el.className = Array.isArray(node.className)
+						? node.className.join(' ')
+						: node.className;
+				}
 
-			node.el = el;
+				node.el = el;
 
-			if (div) {
-				div.appendChild(el);
-			}
+				if (div) {
+					div.appendChild(el);
+				}
 
-			if (node.children) {
+				if (node.children) {
 				// Render the children
-				for (var i = 0; i < node.children.length; i++) {
-					this._renderNode(el, node.children[i]);
+					for (var i = 0; i < node.children.length; i++) {
+						this._renderNode(el, node.children[i]);
+					}
 				}
-			}
 
-			return el;
+				return el;
 
-		case 'text':
-			var txtNode = document.createTextNode(node.text);
+			case 'text':
+				var txtNode = document.createTextNode(node.text);
 
-			node.el = txtNode;
+				node.el = txtNode;
 
-			if (div) {
-				div.appendChild(txtNode);
-			}
+				if (div) {
+					div.appendChild(txtNode);
+				}
 
-			return txtNode;
+				return txtNode;
 
-		case 'component':
-			return node.component
-				? node.component.render(div)
-				: null;
+			case 'component':
+				return node.component
+					? node.component.render(div)
+					: null;
 		}
 	}
 
 	_unrenderNode(node) {
 		switch (this._getType(node)) {
-		case 'tag':
-			node.el = null;
+			case 'tag':
+				node.el = null;
 
-			if (node.children) {
+				if (node.children) {
 				// Unrender the children
-				for (var i = 0; i < node.children.length; i++) {
-					this._unrenderNode(node.children[i]);
+					for (var i = 0; i < node.children.length; i++) {
+						this._unrenderNode(node.children[i]);
+					}
 				}
-			}
-			break;
+				break;
 
-		case 'text':
-			node.el = null;
-			break;
+			case 'text':
+				node.el = null;
+				break;
 
-		case 'component':
-			if (node.component) {
-				node.component.unrender();
-			}
-			break;
+			case 'component':
+				if (node.component) {
+					node.component.unrender();
+				}
+				break;
 		}
 	}
 

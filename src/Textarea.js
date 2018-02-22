@@ -25,28 +25,30 @@ class Textarea extends RootElem {
 
 		this.value = value || "";
 		this.rendered = null;
-    }
+	}
 
-    /**
+	/**
      * Gets the value
+	 * @returns {string}
     */
-    getValue() {
+	getValue() {
 		let el = super.getElement();
 		if (!el) {
 			return null;
 		}
 
 		return el.value;
-    }
+	}
 
 	/**
 	 * Sets the value
 	 * @param {string} value Value
+	 * @returns {this}
 	 */
 	setValue(value) {
 		value = value || "";
 
-        if (value === this.value) {
+		if (value === this.value) {
 			return this;
 		}
 

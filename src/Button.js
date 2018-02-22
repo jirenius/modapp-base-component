@@ -37,6 +37,7 @@ class Button extends RootElem {
 	/**
 	 * Sets the display text
 	 * @param {string|LocaleString} text Display text
+	 * @returns {this}
 	 */
 	setText(text) {
 		this.txt.setText(text);
