@@ -41,6 +41,7 @@ let n = {
 	 * @param {object} [opt] Optional parameters
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value object with attributes.
+	 * @param {object} [opt.properties] Key/value object with properties.
 	 * @param {object} [opt.events] Key/value object with events, where the key is the event name, and the value is the callback function.
 	 * @param {Array.<Elem~node>} [children] Array of child nodes
 	 */
@@ -68,6 +69,9 @@ let n = {
 			}
 			if (opt.attributes) {
 				node.attributes = opt.attributes;
+			}
+			if (opt.properties) {
+				node.properties = opt.properties;
 			}
 			if (opt.events) {
 				node.events = opt.events;
@@ -261,21 +265,59 @@ class Elem {
 		return this;
 	}
 
-	setDisabled(isDisabled) {
-		return this._setDisabled(this.node, isDisabled);
+	setProperty(name, value) {
+		return this._setProperty(this.node, name, value);
 	}
 
-	setNodeDisabled(id, isDisabled) {
-		return this._setDisabled(this.getNode(id), isDisabled);
+	setNodeProperty(id, name, value) {
+		return this._setProperty(this.getNode(id), name, value);
 	}
 
-	_setDisabled(node, isDisabled) {
-		if (isDisabled) {
-			this._setAttribute(node, 'disabled', 'disabled');
+	_setProperty(node, name, value) {
+		this._validateIsTag(node);
+
+		let props = node.properties;
+		if (props) {
+			if (props[name] === value) {
+				return this;
+			}
 		} else {
-			this._removeAttribute(node, 'disabled');
+			props = {};
+			node.properties = props;
 		}
+
+		props[name] = value;
+
+		if (node.el) {
+			node.el[name] = value;
+			props[name] = node.el[name];
+		}
+
 		return this;
+	}
+
+	getProperty(name) {
+		return this._getProperty(this.node, name);
+	}
+
+	getNodeProperty(id, name) {
+		return this._getProperty(this.getNode(id), name);
+	}
+
+	_getProperty(node, name) {
+		this._validateIsTag(node);
+
+		return node.properties && node.properties.hasOwnProperty(name)
+			? node.properties[name]
+			: undefined;
+	}
+
+	setDisabled(disabled) {
+		return this.setProperty('disabled', disabled);
+	}
+
+	setNodeDisabled(id, disabled) {
+		return this.setNodeProperty(this.getNode(id), 'disabled', disabled);
 	}
 
 	setEvent(event, callback) {
@@ -401,6 +443,15 @@ class Elem {
 				for (let key in node.attributes) {
 					if (node.attributes.hasOwnProperty(key)) {
 						el.setAttribute(key, node.attributes[key]);
+					}
+				}
+			}
+
+			if (node.properties) {
+				for (let key in node.properties) {
+					if (node.properties.hasOwnProperty(key)) {
+						el[key] = node.properties[key];
+						node.properties[key] = el[key];
 					}
 				}
 			}

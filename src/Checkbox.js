@@ -21,59 +21,26 @@ class Checkbox extends RootElem {
 			events: { type: '?object' }
 		});
 
-        if (!opt.attributes) {
-            opt.attributes = { type: 'checkbox' };
-
-        } else {
-            opt.attributes.type = 'checkbox';
-        }
-
 		super('input', opt);
-
-		this.checked = checked || false;
-    }
-
-    /**
-     * Gets the value
-    */
-    getChecked() {
-		let el = super.getElement();
-		if (!el) {
-			return false;
-		}
-
-		return el.checked;
-    }
+		this.setAttribute('type', 'checkbox');
+	}
 
 	/**
-	 * Sets the value
-	 * @param {string} value Value
+	 * Checks if the checkbox is checked
+	 * @returns {boolean} Checked value
+	 */
+	isChecked() {
+		return !!this.getProperty('checked');
+	}
+
+	/**
+	 * Sets the checked value
+	 * @param {string} checked Checked value
+	 * @returns {this}
 	 */
 	setChecked(checked) {
-		checked = checked || false;
-
-        if (checked === this.checked) {
-			return this;
-		}
-
-		this.checked = checked;
-		let el = super.getElement();
-		if (!el) {
-			return this;
-		}
-
-		el.checked = this.checked;
+		this.setProperty('checked', !!checked);
 		return this;
-	}
-
-	render(el) {
-        let nodeEl = super.render(el);
-        nodeEl.checked = this.checked;
-		return nodeEl;
-	}
-
-	unrender() {
-		super.unrender();
 	}
 }
 

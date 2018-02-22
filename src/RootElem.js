@@ -46,6 +46,16 @@ class RootElem {
 		return this;
 	}
 
+	setProperty(name, value) {
+		this._rootElem.setProperty(name, value);
+		return this;
+	}
+
+	getProperty(name) {
+		this._rootElem.getProperty(name);
+		return this;
+	}
+
 	setDisabled(isDisabled) {
 		this._rootElem.setDisabled(isDisabled);
 		return this;
