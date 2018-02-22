@@ -1,5 +1,4 @@
 import RootElem from './RootElem';
-import l10n from 'modapp-l10n';
 import * as obj from 'modapp-utils/obj.js';
 
 /**
