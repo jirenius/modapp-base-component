@@ -3,10 +3,10 @@ import Checkbox from './Checkbox';
 /**
  * A radiobutton component
  */
-class Radiobutton extends Checkbox {
+class Radio extends Checkbox {
 
 	/**
-	 * Creates an instance of Radiobutton
+	 * Creates an instance of Radio
 	 * @param {boolean} checked Initial value.
 	 * @param {object} [opt] Optional parameters.
 	 * @param {string} [opt.className] Class name
@@ -19,4 +19,4 @@ class Radiobutton extends Checkbox {
 	}
 }
 
-export default Radiobutton;
+export default Radio;
