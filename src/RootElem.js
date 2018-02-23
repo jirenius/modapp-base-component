@@ -17,6 +17,7 @@ class RootElem {
 	 */
 	constructor(tagName, opt, children) {
 		this._rootElem = new Elem(n => n.elem(tagName, opt, children));
+		this._rootElem.setContext(this);
 	}
 
 	render(el) {
@@ -52,8 +53,7 @@ class RootElem {
 	}
 
 	getProperty(name) {
-		this._rootElem.getProperty(name);
-		return this;
+		return this._rootElem.getProperty(name);
 	}
 
 	setDisabled(isDisabled) {

@@ -121,7 +121,7 @@ class Elem {
 
 		this.node = node;
 		this.idNode = {};
-
+		this.ctx = this;
 		this.el = null;
 
 		this._getNodeIds(node);
@@ -175,6 +175,16 @@ class Elem {
 			throw "Unknown node id";
 		}
 		return node.el;
+	}
+
+	/**
+	 * Sets the event context to pass as the first argument in all event callbacks.
+	 * @param {*} ctx Event context
+	 * @returns {this}
+	 */
+	setContext(ctx) {
+		this.ctx = ctx;
+		return this;
 	}
 
 	/**
@@ -278,20 +288,16 @@ class Elem {
 		this._validateIsTag(node);
 
 		let props = node.properties;
-		if (props) {
-			if (props[name] === value) {
-				return this;
-			}
-		} else {
+		if (!props) {
 			props = {};
 			node.properties = props;
 		}
 
-		props[name] = value;
-
 		if (node.el) {
 			node.el[name] = value;
 			props[name] = node.el[name];
+		} else {
+			props[name] = value;
 		}
 
 		return this;
@@ -308,7 +314,11 @@ class Elem {
 	_getProperty(node, name) {
 		this._validateIsTag(node);
 
-		return node.properties && node.properties.hasOwnProperty(name)
+		if (node.el) {
+			return node.el[name];
+		}
+
+		return node.properties
 			? node.properties[name]
 			: undefined;
 	}
@@ -366,8 +376,9 @@ class Elem {
 		node.events[event] = callback;
 
 		if (node.el) {
-			node.el.addEventListener(event, callback);
-			this.eventListeners.push([ node.el, event, callback ]);
+			let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, cb);
+			node.el.addEventListener(event, cb);
+			this.eventListeners.push([ node.el, event, cb ]);
 		}
 	}
 
@@ -452,7 +463,6 @@ class Elem {
 					for (let key in node.properties) {
 						if (node.properties.hasOwnProperty(key)) {
 							el[key] = node.properties[key];
-							node.properties[key] = el[key];
 						}
 					}
 				}
@@ -461,7 +471,7 @@ class Elem {
 					this.eventListeners = this.eventListeners || [];
 					for (let key in node.events) {
 						if (node.events.hasOwnProperty(key)) {
-							let cb = node.events[key];
+							let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, node.events[key]);
 							el.addEventListener(key, cb);
 							this.eventListeners.push([ el, key, cb ]);
 						}
@@ -510,6 +520,13 @@ class Elem {
 	_unrenderNode(node) {
 		switch (this._getType(node)) {
 			case 'tag':
+				// Store away properties
+				if (node.properties) {
+					let props = node.properties;
+					for (let key in props) {
+						props[key] = node.el[key];
+					}
+				}
 				node.el = null;
 
 				if (node.children) {

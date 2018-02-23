@@ -4,7 +4,8 @@
   "description": "Collection of base components following the component interface of modapp.",
   "main": "./index.js",
   "scripts": {
-    "build": "babel src --out-dir ./"
+    "build": "babel src --out-dir ./",
+    "eslint": "eslint src/**/*.js"
   },
   "repository": {
     "type": "git",
