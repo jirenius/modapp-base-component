@@ -21,20 +21,22 @@ class Select extends RootElem {
 			className: { type: '?string' },
 			attributes: { type: '?object' },
 			events: { type: '?object' },
-			optionFactory: { type: 'function', default: m => {
-				return new Txt(m.text, {
-					tagName: 'option',
-					attributes: {
-						value: m.value
-					}
-				});
-			}}
+			optionFactory: {
+				type: 'function', default: m => {
+					return new Txt(m.text, {
+						tagName: 'option',
+						attributes: {
+							value: m.value
+						}
+					});
+				}
+			}
 		});
 
 		let optionElements = [];
 
-		for(let i of options) {
-			optionElements.push({ component :opt.optionFactory(i) });
+		for (let i of options) {
+			optionElements.push({ component: opt.optionFactory(i) });
 		}
 
 		super('select', opt, optionElements);

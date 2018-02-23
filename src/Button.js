@@ -26,7 +26,7 @@ class Button extends RootElem {
 		});
 
 		let txt = new Txt(text);
-		super(opt.tagName, opt, [{id: 'text', component: txt}]);
+		super(opt.tagName, opt, [{ id: 'text', component: txt }]);
 
 		this.txt = txt;
 		this.click = click;

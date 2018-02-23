@@ -59,7 +59,7 @@ let n = {
 			opt = null;
 		}
 
-		let node = {tagName};
+		let node = { tagName };
 		if (id) {
 			node.id = id;
 		}
@@ -87,8 +87,8 @@ let n = {
 	},
 	text: function(id, text) {
 		return typeof text === 'undefined'
-			? {text: id}
-			: {id, text};
+			? { text: id }
+			: { id, text };
 	},
 	component: function(id, component, opt) {
 		if (typeof id !== 'string') {
@@ -98,8 +98,8 @@ let n = {
 		}
 
 		return id
-			? {id, component}
-			: {component};
+			? { id, component }
+			: { component };
 	}
 };
 
@@ -255,7 +255,7 @@ class Elem {
 	_removeAttribute(node, name) {
 		this._validateIsTag(node);
 		let attr = node.attributes;
-		if (attr  && attr.hasOwnProperty(name)) {
+		if (attr && attr.hasOwnProperty(name)) {
 			delete attr[name];
 
 			if (node.el) {
@@ -367,7 +367,7 @@ class Elem {
 
 		if (node.el) {
 			node.el.addEventListener(event, callback);
-			this.eventListeners.push([node.el, event, callback]);
+			this.eventListeners.push([ node.el, event, callback ]);
 		}
 	}
 
@@ -463,7 +463,7 @@ class Elem {
 						if (node.events.hasOwnProperty(key)) {
 							let cb = node.events[key];
 							el.addEventListener(key, cb);
-							this.eventListeners.push([el, key, cb]);
+							this.eventListeners.push([ el, key, cb ]);
 						}
 					}
 				}
