@@ -17,41 +17,43 @@ class Input extends RootElem {
 	constructor(value, opt) {
 		opt = obj.copy(opt, {
 			className: { type: '?string' },
-            attributes: { type: '?object' },
+			attributes: { type: '?object' },
 			events: { type: '?object' }
-        });
+		});
 
-        if (!opt.attributes) {
-            opt.attributes = { type: 'text' };
-        } else if (!opt.attributes.type) {
-            opt.attributes.type = 'text';
-        }
+		if (!opt.attributes) {
+			opt.attributes = { type: 'text' };
+		} else if (!opt.attributes.type) {
+			opt.attributes.type = 'text';
+		}
 
 		super('input', opt);
 
 		this.value = value || "";
-    }
+	}
 
-    /**
+	/**
      * Gets the value
+	 * @returns {string}
     */
-    getValue() {
+	getValue() {
 		let el = super.getElement();
 		if (!el) {
 			return null;
 		}
 
 		return el.value;
-    }
+	}
 
 	/**
 	 * Sets the value
 	 * @param {string} value Value
+	 * @returns {this}
 	 */
 	setValue(value) {
 		value = value || "";
 
-        if (value === this.value) {
+		if (value === this.value) {
 			return this;
 		}
 
@@ -66,8 +68,8 @@ class Input extends RootElem {
 	}
 
 	render(el) {
-        let nodeEl = super.render(el);
-        nodeEl.value = this.value;
+		let nodeEl = super.render(el);
+		nodeEl.value = this.value;
 		return nodeEl;
 	}
 

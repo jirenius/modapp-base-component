@@ -35,6 +35,7 @@ class Txt extends RootElem {
 	/**
 	 * Sets the display text
 	 * @param {string|LocaleString} text Display text
+	 * @returns {this}
 	 */
 	setText(text) {
 		text = text || "";
