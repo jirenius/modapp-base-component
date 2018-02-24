@@ -1,6 +1,6 @@
 {
   "name": "modapp-base-component",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Collection of base components following the component interface of modapp.",
   "main": "./index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "eslint-plugin-react": "^7.7.0"
   },
   "dependencies": {
-    "modapp-l10n": "^1.0.1",
+    "modapp-l10n": "^1.0.2",
     "modapp-utils": "^1.0.1"
   }
 }
