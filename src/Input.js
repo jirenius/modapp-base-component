@@ -1,5 +1,4 @@
 import RootElem from './RootElem';
-import * as obj from 'modapp-utils/obj.js';
 
 /**
  * A input component
@@ -15,19 +14,8 @@ class Input extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(value, opt) {
-		opt = obj.copy(opt, {
-			className: { type: '?string' },
-			attributes: { type: '?object' },
-			events: { type: '?object' }
-		});
-
-		if (!opt.attributes) {
-			opt.attributes = { type: 'text' };
-		} else if (!opt.attributes.type) {
-			opt.attributes.type = 'text';
-		}
-
 		super('input', opt);
+		this.setAttribute('type', 'text');
 
 		this.value = value || "";
 	}

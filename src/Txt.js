@@ -1,7 +1,6 @@
 import RootElem from './RootElem';
 import l10n from 'modapp-l10n';
 import * as anim from 'modapp-utils/anim.js';
-import * as obj from 'modapp-utils/obj.js';
 
 /**
  * A text component
@@ -18,13 +17,7 @@ class Txt extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(text, opt) {
-		opt = obj.copy(opt, {
-			tagName: { type: 'string', default: 'span' },
-			className: { type: '?string' },
-			attributes: { type: '?object' },
-			events: { type: '?object' }
-		});
-
+		opt = Object.assign({ tagName: 'span' }, opt);
 		super(opt.tagName, opt);
 
 		this.text = text || "";

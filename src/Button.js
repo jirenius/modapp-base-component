@@ -1,6 +1,5 @@
 import RootElem from './RootElem';
 import Txt from './Txt';
-import * as obj from 'modapp-utils/obj';
 
 /**
  * A text component
@@ -18,12 +17,7 @@ class Button extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(text, click, opt) {
-		opt = obj.copy(opt, {
-			tagName: { type: 'string', default: 'button' },
-			className: { type: '?string' },
-			attributes: { type: '?object' },
-			events: { type: 'object' }
-		});
+		opt = Object.assign({ tagName: 'button' }, opt);
 
 		let txt = new Txt(text);
 		super(opt.tagName, opt, [{ id: 'text', component: txt }]);

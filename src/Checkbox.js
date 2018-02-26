@@ -1,5 +1,4 @@
 import RootElem from './RootElem';
-import * as obj from 'modapp-utils/obj.js';
 
 /**
  * A checkbox component
@@ -15,12 +14,6 @@ class Checkbox extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(checked, opt) {
-		opt = obj.copy(opt, {
-			className: { type: '?string' },
-			attributes: { type: '?object' },
-			events: { type: '?object' }
-		});
-
 		super('input', opt);
 		this.setAttribute('type', 'checkbox');
 	}
