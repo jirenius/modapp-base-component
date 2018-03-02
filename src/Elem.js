@@ -207,6 +207,8 @@ class Elem {
 	}
 
 	_addClass(node, className) {
+		this._validateIsTag(node);
+
 		if (!node.className) {
 			node.className = '';
 		}
@@ -244,6 +246,8 @@ class Elem {
 	}
 
 	_removeClass(node, className) {
+		this._validateIsTag(node);
+
 		if (!node.className) {
 			node.className = '';
 		}
@@ -605,7 +609,7 @@ class Elem {
 
 				// Store away className
 				node.className = node.el.className;
-				
+
 				node.el = null;
 
 				if (node.children) {
