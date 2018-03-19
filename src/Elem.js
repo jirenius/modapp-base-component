@@ -47,7 +47,7 @@ let n = {
 	 * @returns {node}
 	 */
 	elem: function(id, tagName, opt, children) {
-		if (typeof tagName === 'object') {
+		if (typeof tagName === 'object' || typeof tagName === 'undefined') {
 			children = opt;
 			opt = tagName;
 			tagName = id;

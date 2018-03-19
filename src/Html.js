@@ -3,41 +3,41 @@ import l10n from 'modapp-l10n';
 import * as anim from 'modapp-utils/anim.js';
 
 /**
- * A text component
+ * A html component
  */
-class Txt extends RootElem {
+class Html extends RootElem {
 
 	/**
-	 * Creates an instance of Txt
-	 * @param {string|LocaleString} text Display text
+	 * Creates an instance of Html
+	 * @param {string|LocaleString} html HTML string
 	 * @param {object} [opt] Optional parameters.
-	 * @param {string} [opt.tagName] Tag name (eg. 'h1') for the element. Defaults to 'span'.
+	 * @param {string} [opt.tagName] Tag name (eg. 'span') for the element. Defaults to 'div'.
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value attributes object
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
-	constructor(text, opt) {
-		opt = Object.assign({ tagName: 'span' }, opt);
+	constructor(html, opt) {
+		opt = Object.assign({ tagName: 'div' }, opt);
 		super(opt.tagName, opt);
 
-		this.text = text || "";
+		this.html = html || "";
 		this.animId = null;
 		this.rendered = null;
 	}
 
 	/**
-	 * Sets the display text
-	 * @param {string|LocaleString} text Display text
+	 * Sets the html
+	 * @param {string} html HTML string
 	 * @returns {this}
 	 */
-	setText(text) {
-		text = text || "";
+	setHtml(html) {
+		html = html || "";
 		// [TODO] Do an l10n equal compare
-		if (text === this.text) {
+		if (html === this.html) {
 			return this;
 		}
 
-		this.text = text;
+		this.html = html;
 		let el = super.getElement();
 		if (!el) {
 			return this;
@@ -45,7 +45,7 @@ class Txt extends RootElem {
 
 		anim.stop(this.animId);
 
-		if (this.rendered === this.text) {
+		if (this.rendered === this.html) {
 			this.animId = anim.fade(el, 1);
 			return this;
 		}
@@ -57,8 +57,8 @@ class Txt extends RootElem {
 					return;
 				}
 
-				this.rendered = this.text;
-				el.textContent = l10n.t(this.text);
+				this.rendered = this.html;
+				el.innerHTML = l10n.t(this.html);
 				this.animId = anim.fade(el, 1);
 			}
 		});
@@ -68,7 +68,7 @@ class Txt extends RootElem {
 
 	render(el) {
 		let nodeEl = super.render(el);
-		nodeEl.textContent = l10n.t(this.text);
+		nodeEl.innerHTML = l10n.t(this.html);
 		return nodeEl;
 	}
 
@@ -79,4 +79,4 @@ class Txt extends RootElem {
 	}
 }
 
-export default Txt;
+export default Html;

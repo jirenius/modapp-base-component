@@ -32,7 +32,8 @@
 			"matchDescription": ".+"
 		}],
 		"array-bracket-spacing": ["error", "always", {
-			"objectsInArrays": false
+			"objectsInArrays": false,
+			"arraysInArrays": false
 		}],
 		"object-curly-spacing": ["error", "always", {
 			"objectsInObjects": false
@@ -49,7 +50,6 @@
 		"no-multi-spaces": ["error"],
 		"space-infix-ops": ["error"],
 		"no-unreachable": ["warn"],
-		"no-console": ["warn"],
 		"no-debugger": ["warn"],
 		"space-in-parens": ["error", "never"],
 		"keyword-spacing": ["error", {
@@ -60,6 +60,9 @@
 			"before": true,
 			"after": true
 		}],
-		"block-spacing": ["error"]
+		"block-spacing": ["error"],
+		"eol-last": ["error", "always"],
+		"no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
+		"key-spacing": ["error"]
 	}
 }
