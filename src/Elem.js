@@ -188,6 +188,85 @@ class Elem {
 	}
 
 	/**
+	 * Add className to the the root node
+	 * @param {string} className Class name to add
+	 * @returns {this}
+	 */
+	addClass(className) {
+		return this._addClass(this.node, className);
+	}
+
+	/**
+	 * Add className to a identifiable node
+	 * @param {string} id Node id
+	 * @param {string} className Class name to add
+	 * @returns {this}
+	 */
+	addNodeClass(id, className) {
+		return this._addClass(this.getNode(id), className);
+	}
+
+	_addClass(node, className) {
+		this._validateIsTag(node);
+
+		if (!node.className) {
+			node.className = '';
+		}
+
+		className = className.trim();
+
+		let classNames = node.className.trim().split(' ');
+
+		if (classNames.includes(className)) {
+			return this;
+		}
+
+		classNames.push(className);
+
+		return this._setClassName(node, classNames.join(' ').trim());
+	}
+
+	/**
+	 * Remove className from the the root node
+	 * @param {string} className Class name to remove
+	 * @returns {this}
+	 */
+	removeClass(className) {
+		return this._removeClass(this.node, className);
+	}
+
+	/**
+	 * Remove className from a identifiable node
+	 * @param {string} id Node id
+	 * @param {string} className Class name to remove
+	 * @returns {this}
+	 */
+	removeNodeClass(id, className) {
+		return this._removeClass(this.getNode(id), className);
+	}
+
+	_removeClass(node, className) {
+		this._validateIsTag(node);
+
+		if (!node.className) {
+			node.className = '';
+		}
+
+		className = className.trim();
+
+		let classNames = node.className.split(' ');
+		let classIndex = classNames.indexOf(className);
+
+		if (classIndex === -1) {
+			return this;
+		}
+
+		classNames.splice(classIndex, 1);
+
+		return this._setClassName(node, classNames.join(' ').trim());
+	}
+
+	/**
 	 * Set className on the root node
 	 * @param {?string} className Class name
 	 * @returns {this}
@@ -527,6 +606,10 @@ class Elem {
 						props[key] = node.el[key];
 					}
 				}
+
+				// Store away className
+				node.className = node.el.className;
+
 				node.el = null;
 
 				if (node.children) {

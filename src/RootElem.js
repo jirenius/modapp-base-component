@@ -37,6 +37,16 @@ class RootElem {
 		return this;
 	}
 
+	addClass(className) {
+		this._rootElem.addClass(className);
+		return this;
+	}
+
+	removeClass(className) {
+		this._rootElem.removeClass(className);
+		return this;
+	}
+
 	setAttribute(name, value) {
 		this._rootElem.setAttribute(name, value);
 		return this;
