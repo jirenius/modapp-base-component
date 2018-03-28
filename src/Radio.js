@@ -19,4 +19,11 @@ class Radio extends Checkbox {
 	}
 }
 
+let inc = 0;
+
+export function generateName() {
+	inc++;
+	return 'comp-radio--name-' + inc;
+};
+
 export default Radio;

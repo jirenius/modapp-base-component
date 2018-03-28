@@ -14,8 +14,9 @@ class Input extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(value, opt) {
+		opt = Object.assign({ attributes: null }, opt);
+		opt.attributes = Object.assign({ type: 'text'}, opt.attributes);
 		super('input', opt);
-		this.setAttribute('type', 'text');
 
 		this.value = value || "";
 	}
