@@ -15,7 +15,7 @@ class Input extends RootElem {
 	 */
 	constructor(value, opt) {
 		opt = Object.assign({ attributes: null }, opt);
-		opt.attributes = Object.assign({ type: 'text'}, opt.attributes);
+		opt.attributes = Object.assign({ type: 'text' }, opt.attributes);
 		super('input', opt);
 
 		this.value = value || "";
