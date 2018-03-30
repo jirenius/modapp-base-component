@@ -4,6 +4,8 @@
 /yarn.lock
 
 # Build files.
-# Put in root folder
-/style
 /*.js
+/*.tgz
+
+# Editor specifics
+.vscode/*

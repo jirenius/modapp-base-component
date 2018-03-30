@@ -4,7 +4,9 @@
   "description": "Collection of base components following the component interface of modapp.",
   "main": "./index.js",
   "scripts": {
-    "build": "babel src --out-dir ./",
+    "build": "npm run clean && npm run eslint && npm run babel",
+    "babel": "babel src --out-dir ./",
+    "clean": "rimraf *.js",
     "eslint": "eslint src/**/*.js"
   },
   "repository": {
@@ -21,7 +23,7 @@
     "eslint": "^4.18.1"
   },
   "dependencies": {
-    "modapp-l10n": "^1.0.2",
-    "modapp-utils": "^1.0.1"
+    "modapp-l10n": "^1.1.0",
+    "modapp-utils": "^1.1.0"
   }
 }
