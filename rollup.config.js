@@ -10,7 +10,7 @@ export default {
 		name: 'modapp-base-component',
 		exports: 'named',
 		globals: {
-			modapp: 'modapp-l10n'
+			'modapp-l10n': 'modapp-l10n'
 		}
 	},
 	external: [ 'modapp-l10n' ],
