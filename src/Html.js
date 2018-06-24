@@ -1,6 +1,6 @@
 import RootElem from './RootElem';
 import l10n from 'modapp-l10n';
-import * as anim from 'modapp-utils/anim.js';
+import { anim } from 'modapp-utils';
 
 /**
  * A html component

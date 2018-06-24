@@ -1,6 +1,6 @@
 import RootElem from './RootElem';
 import Txt from './Txt';
-import * as obj from 'modapp-utils/obj.js';
+import { obj } from 'modapp-utils';
 
 /**
  * A select component
