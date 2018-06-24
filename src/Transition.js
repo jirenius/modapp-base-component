@@ -1,5 +1,4 @@
-import * as anim from 'modapp-utils/anim';
-import * as elem from 'modapp-utils/elem';
+import { anim, elem } from 'modapp-utils';
 
 /**
  * A component used for doing transition between one component to another.
