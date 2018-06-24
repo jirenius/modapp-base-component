@@ -4,7 +4,9 @@
 /yarn.lock
 
 # Build files.
-/*.js
+/dist
+/lib
+/es
 /*.tgz
 
 # Editor specifics

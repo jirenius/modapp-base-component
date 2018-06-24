@@ -3,14 +3,15 @@
  */
 
 import Button from './Button.js';
-import Elem from './Elem.js';
-import RootElem from './RootElem.js';
-import Txt from './Txt.js';
 import Checkbox from './Checkbox.js';
-import Radio from './Radio.js';
-import Textarea from './Textarea.js';
-import Select from './Select.js';
-import Transition from './Transition.js';
+import Elem from './Elem.js';
+import Html from './Html.js';
 import Input from './Input.js';
+import Radio from './Radio.js';
+import RootElem from './RootElem.js';
+import Select from './Select.js';
+import Textarea from './Textarea.js';
+import Transition from './Transition.js';
+import Txt from './Txt.js';
 
-export { Button, Elem, RootElem, Txt, Checkbox, Radio, Textarea, Select, Transition, Input };
+export { Button, Checkbox, Elem, Html, Input, Radio, RootElem, Select, Textarea, Transition, Txt };
