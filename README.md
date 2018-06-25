@@ -20,7 +20,7 @@ yarn add modapp-base-component
 Import any selected component and use it.
 
 ```javascript
-import Txt from 'modapp-base-component/Txt';
+import { Txt } from 'modapp-base-component';
 
 let txt = new Txt("Hello World!");
 txt.render(document.body);
