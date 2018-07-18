@@ -2,7 +2,7 @@ import RootElem from './RootElem';
 import Txt from './Txt';
 
 /**
- * A text component
+ * A button component
  */
 class Button extends RootElem {
 
