@@ -42,7 +42,12 @@
     "rollup-plugin-uglify": "^4.0.0"
   },
   "dependencies": {
-    "modapp-l10n": "^1.2.2",
     "modapp-utils": "^1.2.1"
+  },
+  "optionalDependencies": {
+    "modapp-l10n": "^1.2.2"
+  },
+  "peerDependencies": {
+    "modapp-l10n": "^1.2.2"
   }
 }

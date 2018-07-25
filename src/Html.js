@@ -1,6 +1,9 @@
 import RootElem from './RootElem';
 import l10n from 'modapp-l10n';
 import { anim } from 'modapp-utils';
+import l10nMock from './utils/l10nMock';
+
+const t = l10n ? l10n.t : l10nMock.t;
 
 /**
  * A html component
@@ -58,7 +61,7 @@ class Html extends RootElem {
 				}
 
 				this.rendered = this.html;
-				el.innerHTML = l10n.t(this.html);
+				el.innerHTML = t(this.html);
 				this.animId = anim.fade(el, 1);
 			}
 		});
@@ -68,7 +71,7 @@ class Html extends RootElem {
 
 	render(el) {
 		let nodeEl = super.render(el);
-		nodeEl.innerHTML = l10n.t(this.html);
+		nodeEl.innerHTML = t(this.html);
 		return nodeEl;
 	}
 

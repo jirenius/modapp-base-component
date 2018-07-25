@@ -1,6 +1,9 @@
 import RootElem from './RootElem';
 import l10n from 'modapp-l10n';
 import { anim } from 'modapp-utils';
+import l10nMock from './utils/l10nMock';
+
+const t = l10n ? l10n.t : l10nMock.t;
 
 /**
  * A text component
@@ -58,7 +61,7 @@ class Txt extends RootElem {
 				}
 
 				this.rendered = this.text;
-				el.textContent = l10n.t(this.text);
+				el.textContent = t(this.text);
 				this.animId = anim.fade(el, 1);
 			}
 		});
@@ -68,7 +71,7 @@ class Txt extends RootElem {
 
 	render(el) {
 		let nodeEl = super.render(el);
-		nodeEl.textContent = l10n.t(this.text);
+		nodeEl.textContent = t(this.text);
 		return nodeEl;
 	}
 
