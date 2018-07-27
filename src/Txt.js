@@ -1,9 +1,6 @@
-import RootElem from './RootElem';
-import l10n from 'modapp-l10n';
 import { anim } from 'modapp-utils';
-import l10nMock from './utils/l10nMock';
-
-const t = l10n ? l10n.t : l10nMock.t;
+import RootElem from './RootElem';
+import { translate, onLocaleUpdate, offLocaleUpdate } from './utils/l10n';
 
 /**
  * A text component
@@ -26,6 +23,9 @@ class Txt extends RootElem {
 		this.text = text || "";
 		this.animId = null;
 		this.rendered = null;
+
+		// Bind callbacks
+		this._handleChange = this._handleChange.bind(this);
 	}
 
 	/**
@@ -35,22 +35,47 @@ class Txt extends RootElem {
 	 */
 	setText(text) {
 		text = text || "";
-		// [TODO] Do an l10n equal compare
-		if (text === this.text) {
-			return this;
+
+		if (this.text !== text) {
+			let tmp = this.text;
+			this.text = text;
+			if (super.getElement()) {
+				offLocaleUpdate(tmp);
+				this._handleChange();
+				onLocaleUpdate(this.text);
+			}
 		}
 
-		this.text = text;
+		return this;
+	}
+
+	render(el) {
+		let nodeEl = super.render(el);
+		this.rendered = translate(this.text);
+		nodeEl.textContent = this.rendered;
+		onLocaleUpdate(this.text, this._handleChange);
+		return nodeEl;
+	}
+
+	unrender() {
+		offLocaleUpdate(this.text, this._handleChange);
+		anim.stop(this.animId);
+		super.unrender();
+		this.rendered = null;
+	}
+
+	_handleChange() {
 		let el = super.getElement();
 		if (!el) {
-			return this;
+			return;
 		}
 
 		anim.stop(this.animId);
 
-		if (this.rendered === this.text) {
+		let next = translate(this.text);
+		if (this.rendered === next) {
 			this.animId = anim.fade(el, 1);
-			return this;
+			return;
 		}
 
 		this.animId = anim.fade(el, 0, {
@@ -60,25 +85,11 @@ class Txt extends RootElem {
 					return;
 				}
 
-				this.rendered = this.text;
-				el.textContent = t(this.text);
+				this.rendered = next;
+				el.textContent = next;
 				this.animId = anim.fade(el, 1);
 			}
 		});
-
-		return this;
-	}
-
-	render(el) {
-		let nodeEl = super.render(el);
-		nodeEl.textContent = t(this.text);
-		return nodeEl;
-	}
-
-	unrender() {
-		anim.stop(this.animId);
-		super.unrender();
-		this.rendered = null;
 	}
 }
 

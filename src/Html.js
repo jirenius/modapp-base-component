@@ -1,9 +1,6 @@
-import RootElem from './RootElem';
-import l10n from 'modapp-l10n';
 import { anim } from 'modapp-utils';
-import l10nMock from './utils/l10nMock';
-
-const t = l10n ? l10n.t : l10nMock.t;
+import RootElem from './RootElem';
+import { translate, onLocaleUpdate, offLocaleUpdate } from './utils/l10n';
 
 /**
  * A html component
@@ -26,6 +23,9 @@ class Html extends RootElem {
 		this.html = html || "";
 		this.animId = null;
 		this.rendered = null;
+
+		// Bind callbacks
+		this._handleChange = this._handleChange.bind(this);
 	}
 
 	/**
@@ -35,22 +35,55 @@ class Html extends RootElem {
 	 */
 	setHtml(html) {
 		html = html || "";
-		// [TODO] Do an l10n equal compare
-		if (html === this.html) {
-			return this;
-		}
 
 		this.html = html;
+		this._handleChange();
+
+		return this;
+	}
+	setHtml(html) {
+		html = html || "";
+
+		if (this.html !== html) {
+			let tmp = this.html;
+			this.html = html;
+			if (super.getElement()) {
+				offLocaleUpdate(tmp);
+				this._handleChange();
+				onLocaleUpdate(this.html);
+			}
+		}
+
+		return this;
+	}
+
+	render(el) {
+		let nodeEl = super.render(el);
+		this.rendered = translate(this.html);
+		nodeEl.innerHTML = this.rendered;
+		onLocaleUpdate(this.html, this._handleChange);
+		return nodeEl;
+	}
+
+	unrender() {
+		offLocaleUpdate(this.html, this._handleChange);
+		anim.stop(this.animId);
+		super.unrender();
+		this.rendered = null;
+	}
+
+	_handleChange() {
 		let el = super.getElement();
 		if (!el) {
-			return this;
+			return;
 		}
 
 		anim.stop(this.animId);
 
-		if (this.rendered === this.html) {
+		let next = translate(this.html);
+		if (this.rendered === next) {
 			this.animId = anim.fade(el, 1);
-			return this;
+			return;
 		}
 
 		this.animId = anim.fade(el, 0, {
@@ -60,25 +93,11 @@ class Html extends RootElem {
 					return;
 				}
 
-				this.rendered = this.html;
-				el.innerHTML = t(this.html);
+				this.rendered = next;
+				el.innerHTML = next;
 				this.animId = anim.fade(el, 1);
 			}
 		});
-
-		return this;
-	}
-
-	render(el) {
-		let nodeEl = super.render(el);
-		nodeEl.innerHTML = t(this.html);
-		return nodeEl;
-	}
-
-	unrender() {
-		anim.stop(this.animId);
-		super.unrender();
-		this.rendered = null;
 	}
 }
 

@@ -8,12 +8,8 @@ export default {
 	output: {
 		format: 'umd',
 		name: 'modapp-base-component',
-		exports: 'named',
-		globals: {
-			'modapp-l10n': 'modapp-l10n'
-		}
+		exports: 'named'
 	},
-	external: [ 'modapp-l10n' ],
 	plugins: [
 		resolve({
 			jsnext: true,
