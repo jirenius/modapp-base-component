@@ -14,11 +14,10 @@ class Input extends RootElem {
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
 	 */
 	constructor(value, opt) {
-		opt = Object.assign({ attributes: null }, opt);
-		opt.attributes = Object.assign({ type: 'text' }, opt.attributes);
+		opt = Object.assign({ attributes: null, properties: null }, opt);
+		opt.attributes = Object.assign({ type: 'text' }, opt.attributes, { value });
+		opt.properties = Object.assign({}, opt.properties, { value });
 		super('input', opt);
-
-		this.value = value || "";
 	}
 
 	/**
@@ -26,12 +25,7 @@ class Input extends RootElem {
 	 * @returns {string}
     */
 	getValue() {
-		let el = super.getElement();
-		if (!el) {
-			return null;
-		}
-
-		return el.value;
+		return this.getProperty('value');
 	}
 
 	/**
@@ -40,30 +34,8 @@ class Input extends RootElem {
 	 * @returns {this}
 	 */
 	setValue(value) {
-		value = value || "";
-
-		if (value === this.value) {
-			return this;
-		}
-
-		this.value = value;
-		let el = super.getElement();
-		if (!el) {
-			return this;
-		}
-
-		el.value = this.value;
+		this.setProperty('value', value);
 		return this;
-	}
-
-	render(el) {
-		let nodeEl = super.render(el);
-		nodeEl.value = this.value;
-		return nodeEl;
-	}
-
-	unrender() {
-		super.unrender();
 	}
 }
 
