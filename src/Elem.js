@@ -23,10 +23,17 @@
  * @property {string} [id] Node id used to access the node.
  */
 
+/**
+ * HTML node object
+ * @typedef {Object} Elem~html
+ * @property {string} html HTML to be put in the node
+ * @property {string} [id] Node id used to access the node.
+ */
+
 
 /**
  * Node object
- * @typedef {(Elem~element|Elem~text|Elem~component)} Elem~node
+ * @typedef {(Elem~element|Elem~text|Elem~component|Elem~html)} Elem~node
  */
 
 /**
@@ -90,6 +97,11 @@ let n = {
 			? { text: id }
 			: { id, text };
 	},
+	html: function(id, html) {
+		return typeof html === 'undefined'
+			? { html: id }
+			: { id, html };
+	},
 	component: function(id, component, opt) {
 		if (typeof id !== 'string') {
 			opt = component;
@@ -104,7 +116,7 @@ let n = {
 };
 
 /**
- * An element node
+ * A element node component for rendering complex static node structures.
  */
 class Elem {
 
@@ -518,6 +530,10 @@ class Elem {
 			return 'text';
 		}
 
+		if (node.hasOwnProperty('html')) {
+			return 'html';
+		}
+
 		if (node.hasOwnProperty('component')) {
 			return 'component';
 		}
@@ -564,14 +580,11 @@ class Elem {
 				}
 
 				node.el = el;
-
-				if (div) {
-					div.appendChild(el);
-				}
+				div.appendChild(el);
 
 				if (node.children) {
 				// Render the children
-					for (var i = 0; i < node.children.length; i++) {
+					for (let i = 0; i < node.children.length; i++) {
 						this._renderNode(el, node.children[i]);
 					}
 				}
@@ -579,15 +592,21 @@ class Elem {
 				return el;
 
 			case 'text':
-				var txtNode = document.createTextNode(node.text);
+				let txtNode = document.createTextNode(node.text);
 
 				node.el = txtNode;
-
-				if (div) {
-					div.appendChild(txtNode);
-				}
+				div.appendChild(txtNode);
 
 				return txtNode;
+
+			case 'html':
+				let r = document.createRange();
+				r.selectNodeContents(div);
+				let eo = r.endOffset;
+				div.insertAdjacentHTML('beforeend', node.html);
+				r.selectNodeContents(div);
+				r.setStart(div, eo);
+				return r.cloneContents();
 
 			case 'component':
 				return node.component
