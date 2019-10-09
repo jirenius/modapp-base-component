@@ -152,14 +152,6 @@ class Elem {
 			return;
 		}
 
-		// Remove any event listeners
-		if (this.eventListeners) {
-			for (let evl of this.eventListeners) {
-				evl[0].removeEventListener(evl[1], evl[2]);
-			}
-			this.eventListeners = null;
-		}
-
 		this._unrenderNode(this.node);
 
 		if (this._getType(this.node) !== 'component') {
@@ -170,7 +162,7 @@ class Elem {
 
 	/**
 	 * Gets the root node element
-	 * @returns {?App~component|Node} Component or null if there is no component for the given id.
+	 * @returns {?App~component|Node} Component or null if not rendered.
 	 */
 	getElement() {
 		return this.el;
@@ -179,14 +171,10 @@ class Elem {
 	/**
 	 * Gets a node by its id
 	 * @param {string} id Id of the component
-	 * @returns {App~component|?Node} Component or rendered node (null if not rendered)..
+	 * @returns {App~component|?Node} Component or rendered node. Returns null if not rendered.
 	 */
 	getNode(id) {
-		let node = this.idNode[id];
-		if (typeof node === 'undefined') {
-			throw "Unknown node id";
-		}
-		return node.el;
+		return this._getNode(id).el;
 	}
 
 	/**
@@ -215,7 +203,7 @@ class Elem {
 	 * @returns {this}
 	 */
 	addNodeClass(id, className) {
-		return this._addClass(this.getNode(id), className);
+		return this._addClass(this._getNode(id), className);
 	}
 
 	_addClass(node, className) {
@@ -254,7 +242,7 @@ class Elem {
 	 * @returns {this}
 	 */
 	removeNodeClass(id, className) {
-		return this._removeClass(this.getNode(id), className);
+		return this._removeClass(this._getNode(id), className);
 	}
 
 	_removeClass(node, className) {
@@ -294,7 +282,7 @@ class Elem {
 	 * @returns {this}
 	 */
 	setNodeClassName(id, className) {
-		return this._setClassName(this.getNode(id), className);
+		return this._setClassName(this._getNode(id), className);
 	}
 
 	_setClassName(node, className) {
@@ -320,7 +308,7 @@ class Elem {
 	}
 
 	setNodeAttribute(id, name, value) {
-		return this._setAttribute(this.getNode(id), name, value);
+		return this._setAttribute(this._getNode(id), name, value);
 	}
 
 	_setAttribute(node, name, value) {
@@ -350,7 +338,7 @@ class Elem {
 	}
 
 	removeNodeAttribute(id, name) {
-		return this._removeAttribute(this.getNode(id), name);
+		return this._removeAttribute(this._getNode(id), name);
 	}
 
 	_removeAttribute(node, name) {
@@ -372,7 +360,7 @@ class Elem {
 	}
 
 	setNodeProperty(id, name, value) {
-		return this._setProperty(this.getNode(id), name, value);
+		return this._setProperty(this._getNode(id), name, value);
 	}
 
 	_setProperty(node, name, value) {
@@ -399,7 +387,7 @@ class Elem {
 	}
 
 	getNodeProperty(id, name) {
-		return this._getProperty(this.getNode(id), name);
+		return this._getProperty(this._getNode(id), name);
 	}
 
 	_getProperty(node, name) {
@@ -419,7 +407,7 @@ class Elem {
 	}
 
 	setNodeDisabled(id, disabled) {
-		return this.setNodeProperty(this.getNode(id), 'disabled', disabled);
+		return this.setNodeProperty(this._getNode(id), 'disabled', disabled);
 	}
 
 	setEvent(event, callback) {
@@ -431,7 +419,7 @@ class Elem {
 	}
 
 	setNodeEvent(id, event, callback) {
-		return this._setEvent(this.getNode(id), event, callback);
+		return this._setEvent(this._getNode(id), event, callback);
 	}
 
 	removeNodeEvent(id, event) {
@@ -441,20 +429,20 @@ class Elem {
 	_setEvent(node, event, callback) {
 		this._validateIsTag(node);
 
-		let oldcb = node.events ? node.events[event] : null;
-
-		// Remove any existing event listeners
-		if (oldcb) {
-			if (this.eventListeners) {
-				node.el.removeEventListener(event, oldcb);
-				this.eventListeners = this.eventListeners.filter(evl => evl[0] === node.el && evl[1] === event);
-				delete node.events[event];
-			}
-
-			if (!callback) {
-				delete node.events[event];
-				if (!Object.keys(node.events)) {
-					delete node.events;
+		// Delete any previous event
+		if (node.events) {
+			if (node.events[event]) {
+				if (node.el) {
+					let oldcb = node.eventListeners[event];
+					node.el.removeEventListener(event, oldcb);
+					delete node.eventListeners[event];
+				}
+				if (!callback) {
+					delete node.events[event];
+					if (!Object.keys(node.events)) {
+						delete node.events;
+						delete node.eventListeners;
+					}
 				}
 			}
 		}
@@ -466,10 +454,12 @@ class Elem {
 		node.events = node.events || {};
 		node.events[event] = callback;
 
+		// Add event listener if rendered
 		if (node.el) {
-			let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, cb);
-			node.el.addEventListener(event, cb);
-			this.eventListeners.push([ node.el, event, cb ]);
+			node.eventListeners = node.eventListeners || {};
+			let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, callback);
+			el.addEventListener(event, cb);
+			node.eventListeners[event] = cb;
 		}
 	}
 
@@ -563,12 +553,12 @@ class Elem {
 				}
 
 				if (node.events) {
-					this.eventListeners = this.eventListeners || [];
+					node.eventListeners = {};
 					for (let key in node.events) {
 						if (node.events.hasOwnProperty(key)) {
 							let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, node.events[key]);
 							el.addEventListener(key, cb);
-							this.eventListeners.push([ el, key, cb ]);
+							node.eventListeners[key] = cb;
 						}
 					}
 				}
@@ -618,6 +608,14 @@ class Elem {
 	_unrenderNode(node) {
 		switch (this._getType(node)) {
 			case 'tag':
+				// Unlisten to events
+				if (node.events) {
+					for (let key in node.eventListeners) {
+						node.el.removeEventListener(key, node.eventListeners[key]);
+					}
+					node.eventListeners = null;
+				}
+
 				// Store away properties
 				if (node.properties) {
 					let props = node.properties;
@@ -666,6 +664,14 @@ class Elem {
 
 			c.children = chs;
 		}
+	}
+
+	_getNode(id) {
+		let node = this.idNode[id];
+		if (!node) {
+			throw "Unknown node id";
+		}
+		return node;
 	}
 }
 
