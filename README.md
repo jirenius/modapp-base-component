@@ -38,7 +38,6 @@ A UI component
 * [Component](#Component)
     * [.render(el)](#Component+render) ⇒ <code>HTMLElement</code> \| <code>DocumentFragment</code> \| <code>null</code>
     * [.unrender()](#Component+unrender)
-    * [.dispose()](#Component+dispose)
 
 <a name="Component+render"></a>
 
@@ -61,6 +60,4 @@ Render is never called two times in succession without a call to unrender in bet
 Unrenders the component and removes its element(s) from the parent element.<br>
 Only called after render and never called two times in succession without a call to render in between.
 
-**Kind**: instance method of [<code>Component</code>](#Component)  
-<a name="Component+dispose"></a>
-
+**Kind**: instance method of [<code>Component</code>](#Component)

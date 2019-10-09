@@ -32,7 +32,7 @@ class Transition {
 	render(el) {
 		if (this.div) throw "Component already rendered";
 
-		this.div = elem.create('div', { className: 'comp-transition ' + this.opt.mode + (this.opt.className ? ' ' + this.opt.className : '') });
+		this.div = elem.create('div', { attributes: { style: 'position: relative; overflow: hidden;' + (this.opt.mode == 'flex' ? ' flex: 1 1 0px;' : '') }});
 
 		elem.append(el, this.div);
 		this._renderComponent();
@@ -184,7 +184,7 @@ class Transition {
 		if (!this.current) return;
 
 		// Create container div in which content will be rendered
-		let div = elem.append(this.div, elem.create('div', { className: 'comp-transition-cont' + (this.opt.className ? ' ' + this.opt.className : '') }));
+		let div = elem.append(this.div, elem.create('div', { attributes: { style: 'width: 100%; height: 100%; position: relative; overflow: auto;' }}));
 
 		this.current.render(div);
 
