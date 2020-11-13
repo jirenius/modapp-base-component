@@ -16,6 +16,7 @@ class Checkbox extends RootElem {
 	constructor(checked, opt) {
 		super('input', opt);
 		this.setAttribute('type', 'checkbox');
+		this.setChecked(checked);
 	}
 
 	/**

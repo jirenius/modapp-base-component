@@ -8,7 +8,7 @@ class RootElem {
 
 	/**
 	 * Creates a new RootElem instance
-	 * @param {string} tagName Tag name. Eg. 'div'.
+	 * @param {string|function} tagName Tag name. Eg. 'div', or Elem~node builder function. If a function, all other parameters are ignored.
 	 * @param {object} [opt] Optional parameters
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value object with attributes.
@@ -16,8 +16,12 @@ class RootElem {
 	 * @param {Array.<Elem~node>} [children] Array of child nodes
 	 */
 	constructor(tagName, opt, children) {
-		this._rootElem = new Elem(n => n.elem(tagName, opt, children));
+		this._rootElem = new Elem(tagName && (typeof tagName == 'function' ? tagName : n => n.elem(tagName, opt, children)));
 		this._rootElem.setContext(this);
+	}
+
+	setRootNode(node) {
+		this._rootElem.setRootNode(node);
 	}
 
 	render(el) {
@@ -47,6 +51,10 @@ class RootElem {
 		return this;
 	}
 
+	hasClass(className) {
+		return this._rootElem.hasClass(className);
+	}
+
 	setAttribute(name, value) {
 		this._rootElem.setAttribute(name, value);
 		return this;
@@ -64,6 +72,16 @@ class RootElem {
 
 	getProperty(name) {
 		return this._rootElem.getProperty(name);
+	}
+
+	setStyle(name, value) {
+		this._rootElem.setStyle(name, value);
+		return this;
+	}
+
+	getStyle(name) {
+		this._rootElem.getStyle(name);
+		return this;
 	}
 
 	setDisabled(isDisabled) {

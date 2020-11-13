@@ -49,6 +49,7 @@ let n = {
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value object with attributes.
 	 * @param {object} [opt.properties] Key/value object with properties.
+	 * @param {object} [opt.style] Key/value object with style properties.
 	 * @param {object} [opt.events] Key/value object with events, where the key is the event name, and the value is the callback function.
 	 * @param {Array.<Elem~node>} [children] Array of child nodes
 	 * @returns {node}
@@ -80,6 +81,9 @@ let n = {
 			}
 			if (opt.properties) {
 				node.properties = opt.properties;
+			}
+			if (opt.style) {
+				node.style = opt.style;
 			}
 			if (opt.events) {
 				node.events = opt.events;
@@ -115,6 +119,31 @@ let n = {
 	}
 };
 
+function prepareNodeArray(children) {
+	let l = children.length;
+	let chs = new Array(l);
+	for (let i = 0; i < l; i++) {
+		chs[i] = prepareNode(children[i]);
+	}
+	return chs;
+}
+
+function prepareNode(node) {
+	if (!node) {
+		return node;
+	}
+
+	if (typeof node === 'function') {
+		return node(n);
+	}
+
+	let c = Object.assign({}, node);
+	if (c.children) {
+		c.children = prepareNodeArray(c.children);
+	}
+	return c;
+}
+
 /**
  * A element node component for rendering complex static node structures.
  */
@@ -125,18 +154,29 @@ class Elem {
 	 * @param {Elem~node} node Root node
 	 */
 	constructor(node) {
-		if (typeof node === 'function') {
-			node = node(n);
-		} else {
-			node = this._cloneNode(node);
-		}
-
-		this.node = node;
-		this.idNode = {};
 		this.ctx = this;
 		this.el = null;
+		this.setRootNode(node);
+	}
 
-		this._getNodeIds(node);
+	/**
+	 * Sets the root node.
+	 * May not be called while rendered.
+	 * @param {Elem~node} node Root node
+	 * @returns {this}
+	 */
+	setRootNode(node) {
+		if (this.el) {
+			throw new Error("Call to setRootNode while rendered.");
+		}
+
+		this.node = prepareNode(node);
+
+		this.idNode = {};
+		if (this.node) {
+			this._getNodeIds(this.node);
+		}
+		return this;
 	}
 
 	render(div) {
@@ -267,6 +307,32 @@ class Elem {
 	}
 
 	/**
+	 * Check if the root node contains className
+	 * @param {string} className Class name to look for
+	 * @returns {boolean}
+	 */
+	hasClass(className) {
+		return this._hasClass(this.node, className);
+	}
+
+	/**
+	 * Check if the identifiable node contains className
+	 * @param {string} id Node id
+	 * @param {string} className Class name to look for
+	 * @returns {boolean}
+	 */
+	hasNodeClass(id, className) {
+		return this._hasClass(this._getNode(id), className);
+	}
+
+	_hasClass(node, className) {
+		this._validateIsTag(node);
+		if (!node.className) return false;
+
+		return node.className.split(' ').indexOf(className.trim()) > -1;
+	}
+
+	/**
 	 * Set className on the root node
 	 * @param {?string} className Class name
 	 * @returns {this}
@@ -327,7 +393,7 @@ class Elem {
 		attr[name] = value;
 
 		if (node.el) {
-			node.el.addAttribute(name, value);
+			node.el.setAttribute(name, value);
 		}
 
 		return this;
@@ -402,6 +468,54 @@ class Elem {
 			: undefined;
 	}
 
+	setStyle(name, value) {
+		return this._setStyle(this.node, name, value);
+	}
+
+	setNodeStyle(id, name, value) {
+		return this._setStyle(this._getNode(id), name, value);
+	}
+
+	_setStyle(node, name, value) {
+		this._validateIsTag(node);
+
+		let style = node.style;
+		if (!style) {
+			style = {};
+			node.style = style;
+		}
+
+		if (node.el) {
+			let es = node.el.style;
+			es[name] = value;
+			style[name] = es[name];
+		} else {
+			style[name] = value;
+		}
+
+		return this;
+	}
+
+	getStyle(name) {
+		return this._getStyle(this.node, name);
+	}
+
+	getNodeStyle(id, name) {
+		return this._getStyle(this._getNode(id), name);
+	}
+
+	_getStyle(node, name) {
+		this._validateIsTag(node);
+
+		if (node.el) {
+			return node.el.style[name];
+		}
+
+		return node.style
+			? node.style[name]
+			: undefined;
+	}
+
 	setDisabled(disabled) {
 		return this.setProperty('disabled', disabled);
 	}
@@ -461,6 +575,37 @@ class Elem {
 			el.addEventListener(event, cb);
 			node.eventListeners[event] = cb;
 		}
+	}
+
+	/**
+	 * Sets or clears the node's child nodes.
+	 * @param {string} id Node id
+	 * @param {?App~component|Array.<App~component>} children Child component, or array of child components to set, or null to clear exisiting component. May be an elem builder function.
+	 * @returns {this}
+	 */
+	setNodeChildren(id, children) {
+		let node = this._getNode(id);
+		this._validateIsTag(node);
+
+		// Unrender the children if needed
+		if (node.el && node.children) {
+			for (var i = 0; i < node.children.length; i++) {
+				this._unrenderNode(node.children[i]);
+			}
+		}
+		if (!children) {
+			delete node.children;
+		} else {
+			let c = prepareNodeArray(Array.isArray(children) ? children : [ children ]);
+			node.children = c;
+			if (node.el) {
+				// Render the children
+				for (let i = 0; i < c.length; i++) {
+					this._renderNode(node.el, c[i]);
+				}
+			}
+		}
+		return this;
 	}
 
 	_validateIsTag(node) {
@@ -544,10 +689,20 @@ class Elem {
 					}
 				}
 
-				if (node.properties) {
-					for (let key in node.properties) {
-						if (node.properties.hasOwnProperty(key)) {
-							el[key] = node.properties[key];
+				let p = node.properties;
+				if (p) {
+					for (let key in p) {
+						if (p.hasOwnProperty(key)) {
+							el[key] = p[key];
+						}
+					}
+				}
+
+				let s = node.style;
+				if (s) {
+					for (let key in s) {
+						if (s.hasOwnProperty(key)) {
+							el.style[key] = s[key];
 						}
 					}
 				}
@@ -555,8 +710,9 @@ class Elem {
 				if (node.events) {
 					node.eventListeners = {};
 					for (let key in node.events) {
-						if (node.events.hasOwnProperty(key)) {
-							let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, node.events[key]);
+						let ecb = node.events[key];
+						if (ecb && node.events.hasOwnProperty(key)) {
+							let cb = function(cb, ev) { cb(this.ctx, ev); }.bind(this, ecb);
 							el.addEventListener(key, cb);
 							node.eventListeners[key] = cb;
 						}
@@ -617,10 +773,10 @@ class Elem {
 				}
 
 				// Store away properties
-				if (node.properties) {
-					let props = node.properties;
-					for (let key in props) {
-						props[key] = node.el[key];
+				let p = node.properties;
+				if (p) {
+					for (let key in p) {
+						p[key] = node.el[key];
 					}
 				}
 
@@ -649,27 +805,10 @@ class Elem {
 		}
 	}
 
-	_cloneNode(node) {
-		if (!node) {
-			return node;
-		}
-
-		let c = Object.assign({}, node);
-		if (c.children) {
-			let l = c.children.length;
-			let chs = new Array(l);
-			for (let i = 0; i < l; i++) {
-				chs[i] = this._cloneNode(c.children[i]);
-			}
-
-			c.children = chs;
-		}
-	}
-
 	_getNode(id) {
 		let node = this.idNode[id];
 		if (!node) {
-			throw "Unknown node id";
+			throw new Error("Unknown node id: " + id);
 		}
 		return node;
 	}
