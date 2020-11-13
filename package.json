@@ -1,7 +1,7 @@
 {
   "name": "modapp-base-component",
-  "version": "1.5.0",
-  "description": "Collection of base components following the component interface of modapp.",
+  "version": "1.7.0",
+  "description": "Collection of base components following the Component interface of modapp.",
   "main": "lib/index.js",
   "module": "es/index.js",
   "jsnext:main": "es/index.js",
