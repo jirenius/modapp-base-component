@@ -257,7 +257,7 @@ class Elem {
 
 		let classNames = node.className.trim().split(' ');
 
-		if (classNames.includes(className)) {
+		if (classNames.indexOf(className) > -1) {
 			return this;
 		}
 
