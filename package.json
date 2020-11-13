@@ -25,7 +25,7 @@
     "type": "git",
     "url": "git+https://github.com/jirenius/modapp-base-component"
   },
-  "author": "Samuel Jirénius <samuel@jirenius.se>",
+  "author": "Samuel Jirénius <samuel@jirenius.com>",
   "license": "MIT",
   "homepage": "https://github.com/jirenius/modapp-base-component",
   "devDependencies": {
