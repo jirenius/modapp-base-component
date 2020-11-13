@@ -11,6 +11,7 @@ class Transition {
 	 * @constructor
 	 * @alias module:component/Transition
 	 * @param {object} [opt] Optional parameters
+	 * @param {string} [opt.className] Classname.
 	 * @param {number} [opt.distance] Swipe distance in pixels. Defaults to 64.
 	 * @param {number} [opt.duration] Swipe duration in milliseconds. Defaults to 150.
 	 * @param {string} [opt.mode] Transition container mode. Defaults to 'flex'.
@@ -32,7 +33,7 @@ class Transition {
 	render(el) {
 		if (this.div) throw "Component already rendered";
 
-		this.div = elem.create('div', { attributes: { style: 'position: relative; overflow: hidden;' + (this.opt.mode == 'flex' ? ' flex: 1 1 0px;' : '') }});
+		this.div = elem.create('div', { className: this.opt.className, attributes: { style: 'position: relative; overflow: hidden;' + (this.opt.mode == 'flex' ? ' flex: 1 1 0px;' : '') }});
 
 		elem.append(el, this.div);
 		this._renderComponent();

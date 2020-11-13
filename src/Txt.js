@@ -15,14 +15,16 @@ class Txt extends RootElem {
 	 * @param {string} [opt.className] Class name
 	 * @param {object} [opt.attributes] Key/value attributes object
 	 * @param {object} [opt.events] Key/value events object, where the key is the event name, and value is the callback.
+	 * @param {object} [opt.duration] Fade transition duration. Fade-in + fade-out will take twice this time. Defaults to 200.
 	 */
 	constructor(text, opt) {
 		opt = Object.assign({ tagName: 'span' }, opt);
 		super(opt.tagName, opt);
 
-		this.text = text || "";
-		this.animId = null;
-		this.rendered = null;
+		this._text = text || "";
+		this._animId = null;
+		this._rendered = null;
+		this._duration = opt.duration || 200;
 
 		// Bind callbacks
 		this._handleChange = this._handleChange.bind(this);
@@ -36,32 +38,40 @@ class Txt extends RootElem {
 	setText(text) {
 		text = text || "";
 
-		if (this.text !== text) {
-			let tmp = this.text;
-			this.text = text;
+		if (this._text !== text) {
+			let tmp = this._text;
+			this._text = text;
 			if (super.getElement()) {
 				offLocaleUpdate(tmp);
 				this._handleChange();
-				onLocaleUpdate(this.text);
+				onLocaleUpdate(this._text);
 			}
 		}
 
 		return this;
 	}
 
+	/**
+	 * Gets the current text.
+	 * @returns {string|LocaleString} Current text
+	 */
+	getText() {
+		return this._text;
+	}
+
 	render(el) {
 		let nodeEl = super.render(el);
-		this.rendered = translate(this.text);
-		nodeEl.textContent = this.rendered;
-		onLocaleUpdate(this.text, this._handleChange);
+		this._rendered = translate(this._text);
+		nodeEl.textContent = this._rendered;
+		onLocaleUpdate(this._text, this._handleChange);
 		return nodeEl;
 	}
 
 	unrender() {
-		offLocaleUpdate(this.text, this._handleChange);
-		anim.stop(this.animId);
+		offLocaleUpdate(this._text, this._handleChange);
+		anim.stop(this._animId);
 		super.unrender();
-		this.rendered = null;
+		this._rendered = null;
 	}
 
 	_handleChange() {
@@ -70,24 +80,25 @@ class Txt extends RootElem {
 			return;
 		}
 
-		anim.stop(this.animId);
+		anim.stop(this._animId);
 
-		let next = translate(this.text);
-		if (this.rendered === next) {
-			this.animId = anim.fade(el, 1);
+		let next = translate(this._text);
+		if (this._rendered === next) {
+			this._animId = anim.fade(el, 1, { duration: this._duration });
 			return;
 		}
 
-		this.animId = anim.fade(el, 0, {
+		this._animId = anim.fade(el, 0, {
+			duration: this._duration,
 			callback: () => {
 				let el = super.getElement();
 				if (!el) {
 					return;
 				}
 
-				this.rendered = next;
+				this._rendered = next;
 				el.textContent = next;
-				this.animId = anim.fade(el, 1);
+				this._animId = anim.fade(el, 1, { duration: this._duration });
 			}
 		});
 	}
