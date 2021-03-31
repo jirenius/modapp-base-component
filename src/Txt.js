@@ -24,7 +24,7 @@ class Txt extends RootElem {
 		this._text = text || "";
 		this._animId = null;
 		this._rendered = null;
-		this._duration = opt.duration || 200;
+		this._duration = opt.hasOwnProperty('duration') ? opt.duration : 200;
 
 		// Bind callbacks
 		this._handleChange = this._handleChange.bind(this);
@@ -84,12 +84,12 @@ class Txt extends RootElem {
 
 		let next = translate(this._text);
 		if (this._rendered === next) {
-			this._animId = anim.fade(el, 1, { duration: this._duration });
+			this._animId = anim.fade(el, 1, { duration: next.trim() ? this._duration : 0 });
 			return;
 		}
 
 		this._animId = anim.fade(el, 0, {
-			duration: this._duration,
+			duration: this._rendered.trim() ? this._duration : 0,
 			callback: () => {
 				let el = super.getElement();
 				if (!el) {
@@ -98,7 +98,7 @@ class Txt extends RootElem {
 
 				this._rendered = next;
 				el.textContent = next;
-				this._animId = anim.fade(el, 1, { duration: this._duration });
+				this._animId = anim.fade(el, 1, { duration: next.trim() ? this._duration : 0 });
 			}
 		});
 	}

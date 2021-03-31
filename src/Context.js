@@ -6,9 +6,9 @@ class Context {
 
 	/**
 	 * Creates an instance of Context
-	 * @param {function} ctxCreate Context create callback that should return the context object.
-	 * @param {function} ctxDispose Context dispose callback that gets the context object to dispose.
-	 * @param {function} componentFactory Component factory callback that gets the context object and returns a component.
+	 * @param {function} ctxCreate Context create callback that should return the context object: function(this) -> ctx
+	 * @param {function} ctxDispose Context dispose callback that gets the context object to dispose: function(ctx, this)
+	 * @param {function} componentFactory Component factory callback that gets the context object and returns a component: function(ctx, this)
 	 */
 	constructor(ctxCreate, ctxDispose, componentFactory) {
 		this._create = ctxCreate;
@@ -35,8 +35,8 @@ class Context {
 	}
 
 	render(el) {
-		this._ctx = this._create() || {};
-		this._component = this._factory(this._ctx) || null;
+		this._ctx = (this._create && this._create(this)) || {};
+		this._component = (this._factory && this._factory(this._ctx, this)) || null;
 		if (!this._component) {
 			return null;
 		}
@@ -49,7 +49,9 @@ class Context {
 				this._component.unrender();
 			}
 			this._component = null;
-			this._dispose(this._ctx);
+			if (this._dispose) {
+				this._dispose(this._ctx, this);
+			}
 			this._ctx = null;
 		}
 	}
