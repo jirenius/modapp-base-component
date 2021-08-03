@@ -21,16 +21,14 @@ class Textarea extends RootElem {
 	}
 
 	/**
-     * Gets the value
+	 * Gets the value
 	 * @returns {string}
-    */
+	 */
 	getValue() {
 		let el = super.getElement();
-		if (!el) {
-			return null;
-		}
-
-		return el.value;
+		return el
+			? el.value
+			: this.value;
 	}
 
 	/**
@@ -41,17 +39,12 @@ class Textarea extends RootElem {
 	setValue(value) {
 		value = value || "";
 
-		if (value === this.value) {
-			return this;
-		}
-
-		this.value = value;
 		let el = super.getElement();
-		if (!el) {
-			return this;
+		if (el) {
+			el.value = value;
+		} else {
+			this.value = value;
 		}
-
-		el.value = this.value;
 		return this;
 	}
 
@@ -62,8 +55,12 @@ class Textarea extends RootElem {
 	}
 
 	unrender() {
-		super.unrender();
-		this.rendered = null;
+		let el = super.getElement();
+		if (el) {
+			super.unrender();
+			this.value = el.value;
+			this.rendered = null;
+		}
 	}
 }
 

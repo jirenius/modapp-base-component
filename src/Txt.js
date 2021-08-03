@@ -80,9 +80,16 @@ class Txt extends RootElem {
 			return;
 		}
 
+		let next = translate(this._text);
+
+		if (!this._duration) {
+			this._rendered = next;
+			el.textContent = next;
+			return;
+		}
+
 		anim.stop(this._animId);
 
-		let next = translate(this._text);
 		if (this._rendered === next) {
 			this._animId = anim.fade(el, 1, { duration: next.trim() ? this._duration : 0 });
 			return;
