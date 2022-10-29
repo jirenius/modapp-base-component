@@ -755,9 +755,14 @@ class Elem {
 				return r.cloneContents();
 
 			case 'component':
-				return node.component
-					? node.component.render(div)
-					: null;
+				try {
+					return node.component
+						? node.component.render(div)
+						: null;
+				} catch (ex) {
+					console.error(ex);
+					return null;
+				}
 		}
 	}
 
@@ -799,7 +804,11 @@ class Elem {
 
 			case 'component':
 				if (node.component) {
-					node.component.unrender();
+					try {
+						node.component.unrender();
+					} catch (ex) {
+						console.error(ex);
+					}
 				}
 				break;
 		}
