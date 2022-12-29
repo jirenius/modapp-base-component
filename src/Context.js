@@ -16,6 +16,7 @@ class Context {
 		this._factory = componentFactory;
 		this._ctx = null;
 		this._component = null;
+		this._rendered = false;
 	}
 
 	/**
@@ -35,8 +36,9 @@ class Context {
 	}
 
 	render(el) {
-		this._ctx = (this._create && this._create(this)) || {};
+		this._ctx = (this._create && this._create(this)) || null;
 		this._component = (this._factory && this._factory(this._ctx, this)) || null;
+		this._rendered = true;
 		if (!this._component) {
 			return null;
 		}
@@ -44,7 +46,8 @@ class Context {
 	}
 
 	unrender() {
-		if (this._ctx) {
+		if (this._rendered) {
+			this._rendered = false;
 			if (this._component) {
 				this._component.unrender();
 			}
