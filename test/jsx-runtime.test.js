@@ -7,12 +7,23 @@ const jsxModule = require('../.test-lib/jsx/index.js');
 
 const BaseElem = BaseElemModule.default || BaseElemModule;
 const BaseTxt = BaseTxtModule.default || BaseTxtModule;
+const Button = jsxModule.Button;
+const Checkbox = jsxModule.Checkbox;
+const Context = jsxModule.Context;
 const Elem = jsxModule.Elem;
+const JsxFragment = jsxModule.Fragment;
 const Fragment = runtime.Fragment;
+const Html = jsxModule.Html;
+const Input = jsxModule.Input;
+const Pair = jsxModule.Pair;
 const jsx = runtime.jsx;
 const jsxs = runtime.jsxs;
 const mapJsxProps = jsxModule.mapJsxProps;
+const Radio = jsxModule.Radio;
+const Select = jsxModule.Select;
+const Textarea = jsxModule.Textarea;
 const Txt = jsxModule.Txt;
+const Transition = jsxModule.Transition;
 
 function test(name, callback) {
 	try {
@@ -53,6 +64,8 @@ test('keeps base exports free from JSX helpers', function() {
 	assert.strictEqual(typeof BaseElem.fromJSX, 'undefined');
 	assert.strictEqual(typeof BaseTxt.fromJSX, 'undefined');
 	assert.strictEqual(typeof BaseIndexModule.mapJsxProps, 'undefined');
+	assert.strictEqual(typeof BaseIndexModule.Button.fromJSX, 'undefined');
+	assert.strictEqual(typeof BaseIndexModule.Checkbox.fromJSX, 'undefined');
 });
 
 test('returns Txt instances for JSX component tags', function() {
@@ -60,6 +73,129 @@ test('returns Txt instances for JSX component tags', function() {
 
 	assert.ok(txt instanceof Txt);
 	assert.strictEqual(txt.getText(), 'Hello');
+});
+
+test('returns Button instances for JSX component tags', function() {
+	/* eslint-disable no-unused-vars */
+	let click = function(ctx, ev) {};
+	/* eslint-enable no-unused-vars */
+	let button = jsx(Button, {
+		text: 'Save',
+		onClick: click,
+		tagName: 'a',
+		className: 'action',
+	});
+
+	assert.ok(button instanceof Button);
+	assert.strictEqual(button.txt.getText(), 'Save');
+	assert.strictEqual(button.click, click);
+	assert.strictEqual(button._rootElem.node.tagName, 'a');
+	assert.strictEqual(button._rootElem.node.className, 'action');
+});
+
+test('returns Checkbox and Radio instances for JSX component tags', function() {
+	let checkbox = jsx(Checkbox, { checked: true });
+	let radio = jsx(Radio, { checked: false, attributes: { name: 'group' } });
+
+	assert.ok(checkbox instanceof Checkbox);
+	assert.strictEqual(checkbox.isChecked(), true);
+	assert.ok(radio instanceof Radio);
+	assert.strictEqual(radio.isChecked(), false);
+	assert.strictEqual(radio._rootElem.node.attributes.name, 'group');
+	assert.strictEqual(radio._rootElem.node.attributes.type, 'radio');
+});
+
+test('returns Input and Textarea instances for JSX component tags', function() {
+	let input = jsx(Input, { value: 'alpha', className: 'field' });
+	let textarea = jsx(Textarea, { value: 'beta' });
+
+	assert.ok(input instanceof Input);
+	assert.strictEqual(input.getValue(), 'alpha');
+	assert.strictEqual(input._rootElem.node.className, 'field');
+	assert.ok(textarea instanceof Textarea);
+	assert.strictEqual(textarea.getValue(), 'beta');
+});
+
+test('returns Html instances for JSX component tags', function() {
+	let html = jsx(Html, {
+		html: '<b>Hello</b>',
+		tagName: 'section',
+		className: 'markup',
+	});
+
+	assert.ok(html instanceof Html);
+	assert.strictEqual(html.html, '<b>Hello</b>');
+	assert.strictEqual(html._rootElem.node.tagName, 'section');
+	assert.strictEqual(html._rootElem.node.className, 'markup');
+});
+
+test('returns Select instances for JSX component tags', function() {
+	let select = jsx(Select, {
+		options: [ { value: 'a', text: 'Alpha' } ],
+		optionFactory: option => new Txt(option.text),
+		className: 'picker',
+	});
+
+	assert.ok(select instanceof Select);
+	assert.strictEqual(select._rootElem.node.tagName, 'select');
+	assert.strictEqual(select._rootElem.node.className, 'picker');
+	assert.strictEqual(select._rootElem.node.children.length, 1);
+	assert.ok(select._rootElem.node.children[0].component instanceof Txt);
+	assert.strictEqual(select._rootElem.node.children[0].component.getText(), 'Alpha');
+});
+
+test('returns Fragment and Pair instances for JSX component tags', function() {
+	let fragment = jsxs(JsxFragment, {
+		children: [
+			jsx(Txt, { text: 'First' }),
+			jsx('span', { children: 'Second' }),
+		],
+	});
+	let pair = jsxs(Pair, {
+		children: [
+			jsx(Txt, { text: 'Key' }),
+			jsx('span', { children: 'Value' }),
+		],
+	});
+
+	assert.ok(fragment instanceof JsxFragment);
+	assert.strictEqual(fragment.getComponents().length, 2);
+	assert.ok(fragment.getComponents()[0] instanceof Txt);
+	assert.ok(fragment.getComponents()[1] instanceof Elem);
+	assert.strictEqual(fragment.getComponents()[1].node.tagName, 'span');
+	assert.ok(pair instanceof Pair);
+	assert.ok(pair.getKeyComponent() instanceof Txt);
+	assert.ok(pair.getValueComponent() instanceof Elem);
+	assert.strictEqual(pair.getValueComponent().node.tagName, 'span');
+});
+
+test('returns Context instances for JSX component tags', function() {
+	let create = function(self) { return { ok: true }; };
+	let dispose = function(ctx, self) {};
+	let factory = function(ctx, self) { return new Txt("Hello"); };
+	let context = jsx(Context, {
+		create,
+		dispose,
+		children: factory,
+	});
+
+	assert.ok(context instanceof Context);
+	assert.strictEqual(context._create, create);
+	assert.strictEqual(context._dispose, dispose);
+	assert.strictEqual(context._factory, factory);
+});
+
+test('returns Transition instances for JSX component tags', function() {
+	let transition = jsx(Transition, {
+		className: 'slide',
+		duration: 150,
+		mode: 'flex',
+	});
+
+	assert.ok(transition instanceof Transition);
+	assert.strictEqual(transition.opt.className, 'slide');
+	assert.strictEqual(transition.opt.duration, 150);
+	assert.strictEqual(transition.opt.mode, 'flex');
 });
 
 test('returns Elem instances for JSX Elem tags', function() {
@@ -300,6 +436,66 @@ test('rejects Txt JSX children', function() {
 	assert.throws(function() {
 		jsx(Txt, { children: 'Hello' });
 	}, /does not support children/);
+});
+
+test('rejects Button JSX children', function() {
+	assert.throws(function() {
+		jsx(Button, { text: 'Hello', children: 'Child' });
+	}, /does not support children/);
+});
+
+test('rejects unsupported children on input-style JSX components', function() {
+	assert.throws(function() {
+		jsx(Checkbox, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Radio, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Input, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Textarea, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Html, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Select, { children: 'Child' });
+	}, /does not support children/);
+	assert.throws(function() {
+		jsx(Transition, { children: 'Child' });
+	}, /does not support children/);
+});
+
+test('rejects Pair JSX with wrong child counts', function() {
+	assert.throws(function() {
+		jsx(Pair, {});
+	}, /requires exactly two children/);
+	assert.throws(function() {
+		jsxs(Pair, {
+			children: [
+				jsx(Txt, { text: 'One' }),
+				jsx(Txt, { text: 'Two' }),
+				jsx(Txt, { text: 'Three' }),
+			],
+		});
+	}, /requires exactly two children/);
+	assert.throws(function() {
+		jsx(Pair, { keyComponent: new Txt("One"), valueComponent: new Txt("Two") });
+	}, /uses exactly two children/);
+});
+
+test('rejects invalid Context JSX child shapes', function() {
+	assert.throws(function() {
+		jsx(Context, {});
+	}, /requires exactly one child/);
+	assert.throws(function() {
+		jsx(Context, { children: jsx(Txt, { text: 'Hello' }) });
+	}, /requires a single render-prop child/);
+	assert.throws(function() {
+		jsx(Context, { componentFactory: function() {} });
+	}, /uses a render-prop child instead of componentFactory/);
 });
 
 test('omits nodeId from Txt JSX options', function() {

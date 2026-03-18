@@ -107,6 +107,8 @@ let txt = <Txt text="Hello World!" />;
 txt.render(document.body);
 ```
 
+The `modapp-base-component/jsx` entrypoint exports JSX-enabled wrappers for the public components, including `Button`, `Checkbox`, `Context`, `Elem`, `Fragment`, `Html`, `Input`, `Pair`, `Radio`, `Select`, `Textarea`, `Transition`, and `Txt`.
+
 Custom JSX component tags must expose a static `fromJSX(props)` method that returns a renderable component instance.
 
 For `RootElem`-based components, reuse the same prop mapping as the lowercase JSX runtime through `mapJsxProps`:
