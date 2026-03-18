@@ -49,7 +49,7 @@ Configure Babel with the automatic JSX runtime:
 }
 ```
 
-Then create the renderable root with `new Elem(...)`:
+Lowercase tags create `Elem` node objects used with `new Elem(...)`:
 
 ```javascript
 import { Elem, Txt } from 'modapp-base-component';
@@ -63,6 +63,17 @@ let elem = new Elem(
 
 elem.render(document.body);
 ```
+
+Capitalized tags can return components directly when the component exposes a static `fromJSX(props)` adapter:
+
+```javascript
+import { Txt } from 'modapp-base-component';
+
+let txt = <Txt text="Hello World!" />;
+txt.render(document.body);
+```
+
+Custom JSX component tags must expose a static `fromJSX(props)` method that returns a renderable component instance.
 
 If ESLint is used, make sure to allow jsx in the eslint config:
 ```json
@@ -78,12 +89,13 @@ Supported JSX in v1:
 
 * Lowercase DOM tags such as `<div>` and `<ul>`
 * Inline component instances in expressions, such as `{new Txt("Hello")}`
+* Capitalized component tags that expose `fromJSX(props)`, such as `<Txt text="Hello" />`
 * `nodeId` for `Elem` node lookup ids, while normal `id` stays a DOM attribute
 
 Unsupported JSX in v1:
 
-* Capitalized component tags such as `<Txt />`
 * Fragments such as `<>...</>`
+* Child content for `Txt`, such as `<Txt>Hello</Txt>`
 * Refs, keys, hooks, or reconciliation
 
 All components follows [modapp](https://github.com/jirenius/modapp)'s [component interface](#Component):

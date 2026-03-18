@@ -7,6 +7,22 @@ import { translate, onLocaleUpdate, offLocaleUpdate } from './utils/l10n';
  */
 class Txt extends RootElem {
 
+	static fromJSX(props) {
+		props = Object.assign({}, props);
+
+		if (props.hasOwnProperty('children')) {
+			throw new Error("Txt JSX does not support children. Use the text prop instead.");
+		}
+
+		let text = props.hasOwnProperty('text')
+			? props.text
+			: "";
+
+		delete props.text;
+
+		return new Txt(text, props);
+	}
+
 	/**
 	 * Creates an instance of Txt
 	 * @param {string|LocaleString} text Display text

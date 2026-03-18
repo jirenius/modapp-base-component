@@ -57,7 +57,14 @@ function getUnsupportedTypeError(type) {
 		return new Error("JSX fragments are not supported by modapp-base-component v1.");
 	}
 
-	return new Error("JSX component tags are not supported by modapp-base-component v1. Use {new Component(...)} expressions instead.");
+	return new Error("JSX component tags must expose a static fromJSX(props) adapter in modapp-base-component.");
+}
+
+function getInvalidAdapterError(type) {
+	let name = type && type.name
+		? type.name
+		: 'Component';
+	return new Error(name + ".fromJSX(props) must return a renderable component instance.");
 }
 
 function pushChild(list, child) {
@@ -153,7 +160,16 @@ function mapProps(props) {
 
 function createNode(type, props) {
 	if (typeof type !== 'string') {
-		throw getUnsupportedTypeError(type);
+		if (!type || typeof type.fromJSX !== 'function') {
+			throw getUnsupportedTypeError(type);
+		}
+
+		let component = type.fromJSX(props || {});
+		if (!isRenderableComponent(component)) {
+			throw getInvalidAdapterError(type);
+		}
+
+		return component;
 	}
 
 	props = props || {};

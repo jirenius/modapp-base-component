@@ -42,6 +42,52 @@ test('maps inline components to component nodes', function() {
 	assert.strictEqual(node.children[0].component, txt);
 });
 
+test('returns Txt instances for JSX component tags', function() {
+	let txt = jsx(Txt, { text: 'Hello' });
+
+	assert.ok(txt instanceof Txt);
+	assert.strictEqual(txt.getText(), 'Hello');
+});
+
+test('defaults Txt JSX text to empty string', function() {
+	let txt = jsx(Txt, {});
+
+	assert.ok(txt instanceof Txt);
+	assert.strictEqual(txt.getText(), '');
+});
+
+test('embeds JSX component tag results into element child nodes', function() {
+	let node = jsx('div', {
+		children: jsx(Txt, { text: 'Hello' }),
+	});
+
+	assert.strictEqual(node.children.length, 1);
+	assert.ok(node.children[0].component instanceof Txt);
+	assert.strictEqual(node.children[0].component.getText(), 'Hello');
+});
+
+test('forwards Txt JSX props to Txt options', function() {
+	/* eslint-disable no-unused-vars */
+	let click = function(ctx, ev) {};
+	/* eslint-enable no-unused-vars */
+	let txt = jsx(Txt, {
+		text: 'Hello',
+		tagName: 'strong',
+		className: 'greeting',
+		attributes: { title: 'welcome' },
+		events: { click },
+		duration: 0,
+	});
+
+	assert.strictEqual(txt.getText(), 'Hello');
+	assert.strictEqual(txt.getProperty('tagName'), undefined);
+	assert.strictEqual(txt._rootElem.node.tagName, 'strong');
+	assert.strictEqual(txt._rootElem.node.className, 'greeting');
+	assert.deepStrictEqual(txt._rootElem.node.attributes, { title: 'welcome' });
+	assert.strictEqual(txt._rootElem.node.events.click, click);
+	assert.strictEqual(txt._duration, 0);
+});
+
 test('keeps nodeId separate from DOM id', function() {
 	let node = jsx('label', {
 		nodeId: 'labelNode',
@@ -110,8 +156,27 @@ test('rejects fragment syntax', function() {
 	}, /fragments are not supported/);
 });
 
-test('rejects JSX component tags', function() {
+test('rejects JSX component tags without fromJSX', function() {
+	function PlainComponent() {}
+
 	assert.throws(function() {
-		jsx(Txt, { text: 'Hello' });
-	}, /component tags are not supported/);
+		jsx(PlainComponent, {});
+	}, /must expose a static fromJSX/);
+});
+
+test('rejects Txt JSX children', function() {
+	assert.throws(function() {
+		jsx(Txt, { children: 'Hello' });
+	}, /does not support children/);
+});
+
+test('rejects invalid fromJSX return values', function() {
+	function InvalidComponent() {}
+	InvalidComponent.fromJSX = function() {
+		return { tagName: 'div' };
+	};
+
+	assert.throws(function() {
+		jsx(InvalidComponent, {});
+	}, /must return a renderable component instance/);
 });
