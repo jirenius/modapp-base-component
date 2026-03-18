@@ -30,6 +30,12 @@ txt.render(document.body);
 
 JSX can be used as authoring syntax for `Elem` node trees. JSX does not render anything by itself. It is compiled into the same plain node objects that `Elem` already accepts.
 
+Install `babel/preset-react`:
+
+```text
+npm install --save-dev @babel/preset-react
+```
+
 Configure Babel with the automatic JSX runtime:
 
 ```json
@@ -56,6 +62,16 @@ let elem = new Elem(
 );
 
 elem.render(document.body);
+```
+
+If ESLint is used, make sure to allow jsx in the eslint config:
+```json
+"parserOptions": {
+  /*...*/
+	"ecmaFeatures": {
+	  "jsx": true
+	}
+},
 ```
 
 Supported JSX in v1:
