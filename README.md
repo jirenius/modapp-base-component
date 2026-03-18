@@ -49,6 +49,16 @@ Configure Babel with the automatic JSX runtime:
 }
 ```
 
+If ESLint is used, make sure to allow jsx in the eslint config:
+```json
+"parserOptions": {
+  /*...*/
+	"ecmaFeatures": {
+	  "jsx": true
+	}
+},
+```
+
 Lowercase tags create `Elem` node objects used with `new Elem(...)`:
 
 ```javascript
@@ -61,6 +71,15 @@ let elem = new Elem(
 	</ul>
 );
 
+elem.render(document.body);
+```
+
+The same root can also be written using `Elem.fromJSX` implicitly through JSX:
+
+```javascript
+import { Elem } from 'modapp-base-component';
+
+let elem = <Elem><span>Hello</span></Elem>;
 elem.render(document.body);
 ```
 
@@ -82,17 +101,7 @@ import { mapJsxProps } from 'modapp-base-component';
 
 class MyTxt extends Txt {
 	static fromJSX(props) {
-		props = Object.assign({}, props);
-
-		if (props.hasOwnProperty('children')) {
-			throw new Error("MyTxt JSX does not support children.");
-		}
-
-		let text = props.hasOwnProperty('text')
-			? props.text
-			: "";
-
-		return new MyTxt(text, mapJsxProps(props, {
+		return new MyTxt(props?.text || "", mapJsxProps(props, {
 			omit: { text: true },
 			ignore: { tagName: true, duration: true }
 		}));
@@ -100,21 +109,12 @@ class MyTxt extends Txt {
 }
 ```
 
-If ESLint is used, make sure to allow jsx in the eslint config:
-```json
-"parserOptions": {
-  /*...*/
-	"ecmaFeatures": {
-	  "jsx": true
-	}
-},
-```
-
 Supported JSX in v1:
 
 * Lowercase DOM tags such as `<div>` and `<ul>`
 * Inline component instances in expressions, such as `{new Txt("Hello")}`
 * Capitalized component tags that expose `fromJSX(props)`, such as `<Txt text="Hello" />`
+* `<Elem>...</Elem>` as shorthand for `new Elem(...)` with exactly one root child
 * `nodeId` for `Elem` node lookup ids, while normal `id` stays a DOM attribute
 
 Unsupported JSX in v1:

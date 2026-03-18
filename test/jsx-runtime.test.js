@@ -53,6 +53,26 @@ test('returns Txt instances for JSX component tags', function() {
 	assert.strictEqual(txt.getText(), 'Hello');
 });
 
+test('returns Elem instances for JSX Elem tags', function() {
+	let elem = jsx(Elem, {
+		children: jsx('span', { children: 'Hello' }),
+	});
+
+	assert.ok(elem instanceof Elem);
+	assert.strictEqual(elem.node.tagName, 'span');
+	assert.strictEqual(elem.node.children[0].text, 'Hello');
+});
+
+test('wraps JSX component roots inside Elem tags', function() {
+	let elem = jsx(Elem, {
+		children: jsx(Txt, { text: 'Hello' }),
+	});
+
+	assert.ok(elem instanceof Elem);
+	assert.ok(elem.node.component instanceof Txt);
+	assert.strictEqual(elem.node.component.getText(), 'Hello');
+});
+
 test('defaults Txt JSX text to empty string', function() {
 	let txt = jsx(Txt, {});
 
@@ -77,6 +97,19 @@ test('preserves nodeId for JSX component tags embedded in Elem trees', function(
 			text: 'Hello',
 		}),
 	}));
+
+	let txt = elem.getNode('mytext');
+	assert.ok(txt instanceof Txt);
+	assert.strictEqual(txt.getText(), 'Hello');
+});
+
+test('preserves nodeId for JSX component roots inside Elem tags', function() {
+	let elem = jsx(Elem, {
+		children: jsx(Txt, {
+			nodeId: 'mytext',
+			text: 'Hello',
+		}),
+	});
 
 	let txt = elem.getNode('mytext');
 	assert.ok(txt instanceof Txt);
@@ -229,6 +262,21 @@ test('rejects fragment syntax', function() {
 	assert.throws(function() {
 		jsx(Fragment, {});
 	}, /fragments are not supported/);
+});
+
+test('rejects Elem JSX without a single root child', function() {
+	assert.throws(function() {
+		jsx(Elem, {});
+	}, /requires exactly one root child/);
+
+	assert.throws(function() {
+		jsx(Elem, {
+			children: [
+				jsx('span', { children: 'One' }),
+				jsx('span', { children: 'Two' }),
+			],
+		});
+	}, /requires exactly one root child/);
 });
 
 test('rejects JSX component tags without fromJSX', function() {

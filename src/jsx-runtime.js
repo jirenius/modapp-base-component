@@ -1,25 +1,10 @@
+import { isRenderableComponent, normalizeJsxChildren, setJsxNodeId } from './jsxChildren.js';
 import mapJsxProps from './mapJsxProps.js';
 
 const Fragment = { __modappFragment: true };
-const jsxNodeIdProp = '__jsxNodeId';
 
 function hasOwn(obj, key) {
 	return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
-}
-
-function isElemNode(value) {
-	return !!value &&
-		typeof value === 'object' &&
-		(hasOwn(value, 'tagName') ||
-			hasOwn(value, 'text') ||
-			hasOwn(value, 'html') ||
-			hasOwn(value, 'component'));
-}
-
-function isRenderableComponent(value) {
-	return !!value &&
-		typeof value === 'object' &&
-		typeof value.render === 'function';
 }
 
 function getUnsupportedTypeError(type) {
@@ -37,48 +22,6 @@ function getInvalidAdapterError(type) {
 	return new Error(name + ".fromJSX(props) must return a renderable component instance.");
 }
 
-function pushChild(list, child) {
-	if (child === null || typeof child === 'undefined' || typeof child === 'boolean') {
-		return;
-	}
-
-	if (Array.isArray(child)) {
-		for (let i = 0; i < child.length; i++) {
-			pushChild(list, child[i]);
-		}
-		return;
-	}
-
-	if (typeof child === 'string' || typeof child === 'number') {
-		list.push({ text: String(child) });
-		return;
-	}
-
-	if (typeof child === 'function' || isElemNode(child)) {
-		list.push(child);
-		return;
-	}
-
-	if (isRenderableComponent(child)) {
-		let node = { component: child };
-		if (hasOwn(child, jsxNodeIdProp)) {
-			node.id = child[jsxNodeIdProp];
-		}
-		list.push(node);
-		return;
-	}
-
-	throw new Error("Unsupported JSX child type for modapp-base-component.");
-}
-
-function normalizeChildren(children) {
-	let list = [];
-	pushChild(list, children);
-	return list.length
-		? list
-		: null;
-}
-
 function createNode(type, props) {
 	if (typeof type !== 'string') {
 		if (!type || typeof type.fromJSX !== 'function') {
@@ -91,12 +34,7 @@ function createNode(type, props) {
 		}
 
 		if (hasOwn(props || {}, 'nodeId')) {
-			Object.defineProperty(component, jsxNodeIdProp, {
-				configurable: true,
-				enumerable: false,
-				value: props.nodeId,
-				writable: true,
-			});
+			setJsxNodeId(component, props.nodeId);
 		}
 
 		return component;
@@ -112,7 +50,7 @@ function createNode(type, props) {
 
 	Object.assign(node, mapJsxProps(props));
 
-	let children = normalizeChildren(props.children);
+	let children = normalizeJsxChildren(props.children);
 	if (children) {
 		node.children = children;
 	}
