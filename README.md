@@ -50,14 +50,28 @@ Configure Babel with the automatic JSX runtime:
 }
 ```
 
-If ESLint is used, make sure to allow jsx in the eslint config:
+If ESLint is used, install `eslint-plugin-react`:
+
+```text
+npm install --save-dev eslint-plugin-react
+```
+
+And make sure to allow jsx in the eslint config:
 ```json
+"plugins": {
+  /*...*/
+  "react"
+},
 "parserOptions": {
   /*...*/
-	"ecmaFeatures": {
-	  "jsx": true
-	}
+  "ecmaFeatures": {
+    "jsx": true
+  }
 },
+"rules": {
+  /*...*/
+  "react/jsx-uses-vars": "error",
+}
 ```
 
 Lowercase tags create `Elem` node objects used with `new Elem(...)`:
@@ -66,10 +80,10 @@ Lowercase tags create `Elem` node objects used with `new Elem(...)`:
 import { Elem, Txt } from 'modapp-base-component/jsx';
 
 let elem = new Elem(
-	<ul className="example">
-		<li>First item</li>
-		<li>{new Txt("Second item")}</li>
-	</ul>
+  <ul className="example">
+    <li>First item</li>
+    <li>{new Txt("Second item")}</li>
+  </ul>
 );
 
 elem.render(document.body);
@@ -101,12 +115,12 @@ For `RootElem`-based components, reuse the same prop mapping as the lowercase JS
 import { mapJsxProps, Txt } from 'modapp-base-component/jsx';
 
 class MyTxt extends Txt {
-	static fromJSX(props) {
-		return new MyTxt(props?.text || "", mapJsxProps(props, {
-			omit: { text: true },
-			ignore: { tagName: true, duration: true }
-		}));
-	}
+  static fromJSX(props) {
+    return new MyTxt(props?.text || "", mapJsxProps(props, {
+      omit: { text: true },
+      ignore: { tagName: true, duration: true }
+    }));
+  }
 }
 ```
 
