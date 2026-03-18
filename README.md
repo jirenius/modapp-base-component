@@ -26,6 +26,50 @@ let txt = new Txt("Hello World!");
 txt.render(document.body);
 ```
 
+### JSX with `Elem`
+
+JSX can be used as authoring syntax for `Elem` node trees. JSX does not render anything by itself. It is compiled into the same plain node objects that `Elem` already accepts.
+
+Configure Babel with the automatic JSX runtime:
+
+```json
+{
+  "presets": [
+    ["@babel/preset-react", {
+      "runtime": "automatic",
+      "importSource": "modapp-base-component"
+    }]
+  ]
+}
+```
+
+Then create the renderable root with `new Elem(...)`:
+
+```javascript
+import { Elem, Txt } from 'modapp-base-component';
+
+let elem = new Elem(
+	<ul className="example">
+		<li>First item</li>
+		<li>{new Txt("Second item")}</li>
+	</ul>
+);
+
+elem.render(document.body);
+```
+
+Supported JSX in v1:
+
+* Lowercase DOM tags such as `<div>` and `<ul>`
+* Inline component instances in expressions, such as `{new Txt("Hello")}`
+* `nodeId` for `Elem` node lookup ids, while normal `id` stays a DOM attribute
+
+Unsupported JSX in v1:
+
+* Capitalized component tags such as `<Txt />`
+* Fragments such as `<>...</>`
+* Refs, keys, hooks, or reconciliation
+
 All components follows [modapp](https://github.com/jirenius/modapp)'s [component interface](#Component):
 
 <a name="Component"></a>

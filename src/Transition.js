@@ -188,6 +188,9 @@ class Transition {
 		let div = elem.append(this.div, elem.create('div', { attributes: { style: 'width: 100%; height: 100%; position: relative; overflow: auto;' }}));
 
 		this.current.render(div);
+		if (this.opt.onRender) {
+			this.onRender(this.current);
+		}
 
 		this.rendered = this.current;
 		this.contDiv = div;
