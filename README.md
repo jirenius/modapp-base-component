@@ -75,6 +75,31 @@ txt.render(document.body);
 
 Custom JSX component tags must expose a static `fromJSX(props)` method that returns a renderable component instance.
 
+For `RootElem`-based components, reuse the same prop mapping as the lowercase JSX runtime through `mapJsxProps`:
+
+```javascript
+import { mapJsxProps } from 'modapp-base-component';
+
+class MyTxt extends Txt {
+	static fromJSX(props) {
+		props = Object.assign({}, props);
+
+		if (props.hasOwnProperty('children')) {
+			throw new Error("MyTxt JSX does not support children.");
+		}
+
+		let text = props.hasOwnProperty('text')
+			? props.text
+			: "";
+
+		return new MyTxt(text, mapJsxProps(props, {
+			omit: { text: true },
+			ignore: { tagName: true, duration: true }
+		}));
+	}
+}
+```
+
 If ESLint is used, make sure to allow jsx in the eslint config:
 ```json
 "parserOptions": {
@@ -97,6 +122,8 @@ Unsupported JSX in v1:
 * Fragments such as `<>...</>`
 * Child content for `Txt`, such as `<Txt>Hello</Txt>`
 * Refs, keys, hooks, or reconciliation
+
+`mapJsxProps` always treats `nodeId` as reserved and omits it from component option mapping. Use `omit` to drop adapter-specific props entirely and `ignore` to pass adapter-specific options through unchanged.
 
 All components follows [modapp](https://github.com/jirenius/modapp)'s [component interface](#Component):
 

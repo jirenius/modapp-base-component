@@ -1,5 +1,6 @@
 import { anim } from 'modapp-utils';
 import RootElem from './RootElem';
+import mapJsxProps from './mapJsxProps.js';
 import { translate, onLocaleUpdate, offLocaleUpdate } from './utils/l10n';
 
 /**
@@ -18,9 +19,10 @@ class Txt extends RootElem {
 			? props.text
 			: "";
 
-		delete props.text;
-
-		return new Txt(text, props);
+		return new Txt(text, mapJsxProps(props, {
+			omit: { text: true },
+			ignore: { tagName: true, duration: true },
+		}));
 	}
 
 	/**

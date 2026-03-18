@@ -1,10 +1,12 @@
 const assert = require('assert');
 const runtime = require('../.test-lib/jsx-runtime.js');
+const indexModule = require('../.test-lib/index.js');
 const TxtModule = require('../.test-lib/Txt.js');
 
 const Fragment = runtime.Fragment;
 const jsx = runtime.jsx;
 const jsxs = runtime.jsxs;
+const mapJsxProps = indexModule.mapJsxProps;
 const Txt = TxtModule.default || TxtModule;
 
 function test(name, callback) {
@@ -86,6 +88,11 @@ test('forwards Txt JSX props to Txt options', function() {
 	assert.deepStrictEqual(txt._rootElem.node.attributes, { title: 'welcome' });
 	assert.strictEqual(txt._rootElem.node.events.click, click);
 	assert.strictEqual(txt._duration, 0);
+	assert.strictEqual(txt._rootElem.node.attributes.text, undefined);
+});
+
+test('exports shared mapJsxProps helper', function() {
+	assert.strictEqual(typeof mapJsxProps, 'function');
 });
 
 test('keeps nodeId separate from DOM id', function() {
@@ -122,6 +129,59 @@ test('maps properties, attributes, events, and style', function() {
 	assert.deepStrictEqual(node.attributes, { type: 'radio', role: 'switch' });
 	assert.deepStrictEqual(node.properties, { value: 'beta', checked: true });
 	assert.strictEqual(node.events.click, explicitClick);
+});
+
+test('mapJsxProps maps shared RootElem props', function() {
+	/* eslint-disable no-unused-vars */
+	let click = function(ctx, ev) {};
+	let explicitClick = function(ctx, ev) {};
+	/* eslint-enable no-unused-vars */
+	let mapped = mapJsxProps({
+		className: 'field',
+		style: { display: 'none' },
+		htmlFor: 'field-id',
+		onClick: click,
+		value: 'alpha',
+		checked: true,
+		attributes: { type: 'radio', role: 'switch' },
+		properties: { value: 'beta' },
+		events: { click: explicitClick },
+		id: 'dom-id',
+		nodeId: 'internal-id',
+		children: 'ignored',
+	});
+
+	assert.strictEqual(mapped.className, 'field');
+	assert.deepStrictEqual(mapped.style, { display: 'none' });
+	assert.deepStrictEqual(mapped.attributes, {
+		type: 'radio',
+		role: 'switch',
+		for: 'field-id',
+		id: 'dom-id',
+	});
+	assert.deepStrictEqual(mapped.properties, { value: 'beta', checked: true });
+	assert.strictEqual(mapped.events.click, explicitClick);
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(mapped, 'nodeId'), false);
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(mapped, 'children'), false);
+});
+
+test('mapJsxProps supports omit and ignore options', function() {
+	let mapped = mapJsxProps({
+		text: 'Hello',
+		tagName: 'strong',
+		duration: 0,
+		className: 'greeting',
+		nodeId: 'txt-node',
+	}, {
+		omit: { text: true },
+		ignore: { tagName: true, duration: true },
+	});
+
+	assert.strictEqual(mapped.className, 'greeting');
+	assert.strictEqual(mapped.tagName, 'strong');
+	assert.strictEqual(mapped.duration, 0);
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(mapped, 'text'), false);
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(mapped, 'nodeId'), false);
 });
 
 test('flattens child arrays and ignores empty children', function() {
@@ -168,6 +228,16 @@ test('rejects Txt JSX children', function() {
 	assert.throws(function() {
 		jsx(Txt, { children: 'Hello' });
 	}, /does not support children/);
+});
+
+test('omits nodeId from Txt JSX options', function() {
+	let txt = jsx(Txt, {
+		nodeId: 'txt-node',
+		onClick: function(ctx, ev) {},
+	});
+
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(txt._rootElem.node, 'id'), false);
+	assert.strictEqual(typeof txt._rootElem.node.events.click, 'function');
 });
 
 test('rejects invalid fromJSX return values', function() {
