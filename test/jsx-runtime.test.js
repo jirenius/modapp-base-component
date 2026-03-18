@@ -1,8 +1,10 @@
 const assert = require('assert');
 const runtime = require('../.test-lib/jsx-runtime.js');
+const ElemModule = require('../.test-lib/Elem.js');
 const indexModule = require('../.test-lib/index.js');
 const TxtModule = require('../.test-lib/Txt.js');
 
+const Elem = ElemModule.default || ElemModule;
 const Fragment = runtime.Fragment;
 const jsx = runtime.jsx;
 const jsxs = runtime.jsxs;
@@ -66,6 +68,19 @@ test('embeds JSX component tag results into element child nodes', function() {
 	assert.strictEqual(node.children.length, 1);
 	assert.ok(node.children[0].component instanceof Txt);
 	assert.strictEqual(node.children[0].component.getText(), 'Hello');
+});
+
+test('preserves nodeId for JSX component tags embedded in Elem trees', function() {
+	let elem = new Elem(jsx('div', {
+		children: jsx(Txt, {
+			nodeId: 'mytext',
+			text: 'Hello',
+		}),
+	}));
+
+	let txt = elem.getNode('mytext');
+	assert.ok(txt instanceof Txt);
+	assert.strictEqual(txt.getText(), 'Hello');
 });
 
 test('forwards Txt JSX props to Txt options', function() {

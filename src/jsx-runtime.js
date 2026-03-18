@@ -1,6 +1,7 @@
 import mapJsxProps from './mapJsxProps.js';
 
 const Fragment = { __modappFragment: true };
+const jsxNodeIdProp = '__jsxNodeId';
 
 function hasOwn(obj, key) {
 	return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
@@ -59,7 +60,11 @@ function pushChild(list, child) {
 	}
 
 	if (isRenderableComponent(child)) {
-		list.push({ component: child });
+		let node = { component: child };
+		if (hasOwn(child, jsxNodeIdProp)) {
+			node.id = child[jsxNodeIdProp];
+		}
+		list.push(node);
 		return;
 	}
 
@@ -83,6 +88,15 @@ function createNode(type, props) {
 		let component = type.fromJSX(props || {});
 		if (!isRenderableComponent(component)) {
 			throw getInvalidAdapterError(type);
+		}
+
+		if (hasOwn(props || {}, 'nodeId')) {
+			Object.defineProperty(component, jsxNodeIdProp, {
+				configurable: true,
+				enumerable: false,
+				value: props.nodeId,
+				writable: true,
+			});
 		}
 
 		return component;
