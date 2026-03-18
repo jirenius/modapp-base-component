@@ -9,7 +9,6 @@ import Elem from './Elem.js';
 import Fragment from './Fragment.js';
 import Html from './Html.js';
 import Input from './Input.js';
-import mapJsxProps from './mapJsxProps.js';
 import Pair from './Pair.js';
 import Radio, { generateName } from './Radio.js';
 import RootElem from './RootElem.js';
@@ -18,4 +17,4 @@ import Textarea from './Textarea.js';
 import Transition from './Transition.js';
 import Txt from './Txt.js';
 
-export { Button, Checkbox, Context, Elem, Fragment, Html, Input, mapJsxProps, Pair, Radio, RootElem, Select, Textarea, Transition, Txt, generateName };
+export { Button, Checkbox, Context, Elem, Fragment, Html, Input, Pair, Radio, RootElem, Select, Textarea, Transition, Txt, generateName };

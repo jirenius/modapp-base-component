@@ -1,29 +1,11 @@
 import { anim } from 'modapp-utils';
 import RootElem from './RootElem';
-import mapJsxProps from './mapJsxProps.js';
 import { translate, onLocaleUpdate, offLocaleUpdate } from './utils/l10n';
 
 /**
  * A text component
  */
 class Txt extends RootElem {
-
-	static fromJSX(props) {
-		props = Object.assign({}, props);
-
-		if (props.hasOwnProperty('children')) {
-			throw new Error("Txt JSX does not support children. Use the text prop instead.");
-		}
-
-		let text = props.hasOwnProperty('text')
-			? props.text
-			: "";
-
-		return new Txt(text, mapJsxProps(props, {
-			omit: { text: true },
-			ignore: { tagName: true, duration: true },
-		}));
-	}
 
 	/**
 	 * Creates an instance of Txt

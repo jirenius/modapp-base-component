@@ -1,5 +1,3 @@
-import { normalizeJsxChildren } from './jsxChildren.js';
-
 /**
  * Element node object
  * @typedef {Object} Elem~element
@@ -150,18 +148,6 @@ function prepareNode(node) {
  * A element node component for rendering complex static node structures.
  */
 class Elem {
-
-	static fromJSX(props) {
-		props = props || {};
-
-		let list = normalizeJsxChildren(props.children) || [];
-
-		if (list.length !== 1) {
-			throw new Error("Elem JSX requires exactly one root child.");
-		}
-
-		return new Elem(list[0]);
-	}
 
 	/**
 	 * Creates a new Elem instance

@@ -1,15 +1,18 @@
 const assert = require('assert');
-const runtime = require('../.test-lib/jsx-runtime.js');
-const ElemModule = require('../.test-lib/Elem.js');
-const indexModule = require('../.test-lib/index.js');
-const TxtModule = require('../.test-lib/Txt.js');
+const runtime = require('../.test-lib/jsx/jsx-runtime.js');
+const BaseElemModule = require('../.test-lib/Elem.js');
+const BaseIndexModule = require('../.test-lib/index.js');
+const BaseTxtModule = require('../.test-lib/Txt.js');
+const jsxModule = require('../.test-lib/jsx/index.js');
 
-const Elem = ElemModule.default || ElemModule;
+const BaseElem = BaseElemModule.default || BaseElemModule;
+const BaseTxt = BaseTxtModule.default || BaseTxtModule;
+const Elem = jsxModule.Elem;
 const Fragment = runtime.Fragment;
 const jsx = runtime.jsx;
 const jsxs = runtime.jsxs;
-const mapJsxProps = indexModule.mapJsxProps;
-const Txt = TxtModule.default || TxtModule;
+const mapJsxProps = jsxModule.mapJsxProps;
+const Txt = jsxModule.Txt;
 
 function test(name, callback) {
 	try {
@@ -39,11 +42,17 @@ test('creates nested element nodes', function() {
 });
 
 test('maps inline components to component nodes', function() {
-	let txt = new Txt("Second item");
+	let txt = new BaseTxt("Second item");
 	let node = jsx('li', { children: txt });
 
 	assert.strictEqual(node.children.length, 1);
 	assert.strictEqual(node.children[0].component, txt);
+});
+
+test('keeps base exports free from JSX helpers', function() {
+	assert.strictEqual(typeof BaseElem.fromJSX, 'undefined');
+	assert.strictEqual(typeof BaseTxt.fromJSX, 'undefined');
+	assert.strictEqual(typeof BaseIndexModule.mapJsxProps, 'undefined');
 });
 
 test('returns Txt instances for JSX component tags', function() {

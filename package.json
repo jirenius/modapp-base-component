@@ -11,6 +11,11 @@
       "require": "./lib/index.js",
       "default": "./lib/index.js"
     },
+    "./jsx": {
+      "import": "./es/jsx/index.js",
+      "require": "./lib/jsx/index.js",
+      "default": "./lib/jsx/index.js"
+    },
     "./jsx-runtime": {
       "import": "./es/jsx-runtime.js",
       "require": "./lib/jsx-runtime.js",
@@ -20,6 +25,16 @@
       "import": "./es/jsx-dev-runtime.js",
       "require": "./lib/jsx-dev-runtime.js",
       "default": "./lib/jsx-dev-runtime.js"
+    },
+    "./jsx/jsx-runtime": {
+      "import": "./es/jsx/jsx-runtime.js",
+      "require": "./lib/jsx/jsx-runtime.js",
+      "default": "./lib/jsx/jsx-runtime.js"
+    },
+    "./jsx/jsx-dev-runtime": {
+      "import": "./es/jsx/jsx-dev-runtime.js",
+      "require": "./lib/jsx/jsx-dev-runtime.js",
+      "default": "./lib/jsx/jsx-dev-runtime.js"
     },
     "./package.json": "./package.json"
   },

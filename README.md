@@ -29,6 +29,7 @@ txt.render(document.body);
 ### JSX with `Elem`
 
 JSX can be used as authoring syntax for `Elem` node trees. JSX does not render anything by itself. It is compiled into the same plain node objects that `Elem` already accepts.
+JSX support is opt-in through the `modapp-base-component/jsx` entrypoint, so the base package stays free from JSX adapter code unless you choose to use it.
 
 Install `babel/preset-react`:
 
@@ -43,7 +44,7 @@ Configure Babel with the automatic JSX runtime:
   "presets": [
     ["@babel/preset-react", {
       "runtime": "automatic",
-      "importSource": "modapp-base-component"
+      "importSource": "modapp-base-component/jsx"
     }]
   ]
 }
@@ -62,7 +63,7 @@ If ESLint is used, make sure to allow jsx in the eslint config:
 Lowercase tags create `Elem` node objects used with `new Elem(...)`:
 
 ```javascript
-import { Elem, Txt } from 'modapp-base-component';
+import { Elem, Txt } from 'modapp-base-component/jsx';
 
 let elem = new Elem(
 	<ul className="example">
@@ -77,7 +78,7 @@ elem.render(document.body);
 The same root can also be written using `Elem.fromJSX` implicitly through JSX:
 
 ```javascript
-import { Elem } from 'modapp-base-component';
+import { Elem } from 'modapp-base-component/jsx';
 
 let elem = <Elem><span>Hello</span></Elem>;
 elem.render(document.body);
@@ -86,7 +87,7 @@ elem.render(document.body);
 Capitalized tags can return components directly when the component exposes a static `fromJSX(props)` adapter:
 
 ```javascript
-import { Txt } from 'modapp-base-component';
+import { Txt } from 'modapp-base-component/jsx';
 
 let txt = <Txt text="Hello World!" />;
 txt.render(document.body);
@@ -97,7 +98,7 @@ Custom JSX component tags must expose a static `fromJSX(props)` method that retu
 For `RootElem`-based components, reuse the same prop mapping as the lowercase JSX runtime through `mapJsxProps`:
 
 ```javascript
-import { mapJsxProps } from 'modapp-base-component';
+import { mapJsxProps, Txt } from 'modapp-base-component/jsx';
 
 class MyTxt extends Txt {
 	static fromJSX(props) {
