@@ -6,6 +6,11 @@ class Txt extends BaseTxt {
 	static fromJSX(props) {
 		props = Object.assign({}, props);
 
+		if (props.hasOwnProperty('as') && !props.hasOwnProperty('tagName')) {
+			props.tagName = props.as;
+		}
+		delete props.as;
+
 		if (props.hasOwnProperty('children')) {
 			throw new Error("Txt JSX does not support children. Use the text prop instead.");
 		}

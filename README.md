@@ -94,7 +94,7 @@ The same root can also be written using `Elem.fromJSX` implicitly through JSX:
 ```javascript
 import { Elem } from 'modapp-base-component/jsx';
 
-let elem = <Elem><span>Hello</span></Elem>;
+let elem = <Elem as="span">Hello</Elem>;
 elem.render(document.body);
 ```
 
@@ -131,7 +131,7 @@ Supported JSX in v1:
 * Lowercase DOM tags such as `<div>` and `<ul>`
 * Inline component instances in expressions, such as `{new Txt("Hello")}`
 * Capitalized component tags that expose `fromJSX(props)`, such as `<Txt text="Hello" />`
-* `<Elem>...</Elem>` as shorthand for `new Elem(...)` with exactly one root child
+* `<Elem as="tag">...</Elem>` as shorthand for creating a root `Elem` node, defaulting to `div`
 * `nodeId` for `Elem` node lookup ids, while normal `id` stays a DOM attribute
 
 Unsupported JSX in v1:

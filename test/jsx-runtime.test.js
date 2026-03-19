@@ -82,7 +82,7 @@ test('returns Button instances for JSX component tags', function() {
 	let button = jsx(Button, {
 		text: 'Save',
 		onClick: click,
-		tagName: 'a',
+		as: 'a',
 		className: 'action',
 	});
 
@@ -119,7 +119,7 @@ test('returns Input and Textarea instances for JSX component tags', function() {
 test('returns Html instances for JSX component tags', function() {
 	let html = jsx(Html, {
 		html: '<b>Hello</b>',
-		tagName: 'section',
+		as: 'section',
 		className: 'markup',
 	});
 
@@ -200,22 +200,41 @@ test('returns Transition instances for JSX component tags', function() {
 
 test('returns Elem instances for JSX Elem tags', function() {
 	let elem = jsx(Elem, {
+		as: 'section',
 		children: jsx('span', { children: 'Hello' }),
 	});
 
 	assert.ok(elem instanceof Elem);
-	assert.strictEqual(elem.node.tagName, 'span');
-	assert.strictEqual(elem.node.children[0].text, 'Hello');
+	assert.strictEqual(elem.node.tagName, 'section');
+	assert.strictEqual(elem.node.children[0].tagName, 'span');
+	assert.strictEqual(elem.node.children[0].children[0].text, 'Hello');
 });
 
 test('wraps JSX component roots inside Elem tags', function() {
 	let elem = jsx(Elem, {
+		as: 'section',
 		children: jsx(Txt, { text: 'Hello' }),
 	});
 
 	assert.ok(elem instanceof Elem);
-	assert.ok(elem.node.component instanceof Txt);
-	assert.strictEqual(elem.node.component.getText(), 'Hello');
+	assert.strictEqual(elem.node.tagName, 'section');
+	assert.ok(elem.node.children[0].component instanceof Txt);
+	assert.strictEqual(elem.node.children[0].component.getText(), 'Hello');
+});
+
+test('defaults Elem JSX to div and supports multiple children', function() {
+	let elem = jsx(Elem, {
+		children: [
+			jsx('span', { children: 'One' }),
+			jsx('span', { children: 'Two' }),
+		],
+	});
+
+	assert.ok(elem instanceof Elem);
+	assert.strictEqual(elem.node.tagName, 'div');
+	assert.strictEqual(elem.node.children.length, 2);
+	assert.strictEqual(elem.node.children[0].tagName, 'span');
+	assert.strictEqual(elem.node.children[1].tagName, 'span');
 });
 
 test('defaults Txt JSX text to empty string', function() {
@@ -250,6 +269,7 @@ test('preserves nodeId for JSX component tags embedded in Elem trees', function(
 
 test('preserves nodeId for JSX component roots inside Elem tags', function() {
 	let elem = jsx(Elem, {
+		as: 'div',
 		children: jsx(Txt, {
 			nodeId: 'mytext',
 			text: 'Hello',
@@ -261,13 +281,28 @@ test('preserves nodeId for JSX component roots inside Elem tags', function() {
 	assert.strictEqual(txt.getText(), 'Hello');
 });
 
+test('preserves nodeId for Elem JSX roots and omits as from root attributes', function() {
+	let elem = jsx(Elem, {
+		as: 'section',
+		nodeId: 'root',
+		id: 'dom-id',
+	});
+
+	let root = elem.getNode('root');
+	assert.strictEqual(elem.node.tagName, 'section');
+	assert.strictEqual(root, null);
+	assert.strictEqual(elem.node.id, 'root');
+	assert.strictEqual(elem.node.attributes.id, 'dom-id');
+	assert.strictEqual(elem.node.attributes.as, undefined);
+});
+
 test('forwards Txt JSX props to Txt options', function() {
 	/* eslint-disable no-unused-vars */
 	let click = function(ctx, ev) {};
 	/* eslint-enable no-unused-vars */
 	let txt = jsx(Txt, {
 		text: 'Hello',
-		tagName: 'strong',
+		as: 'strong',
 		className: 'greeting',
 		attributes: { title: 'welcome' },
 		events: { click },
@@ -282,6 +317,27 @@ test('forwards Txt JSX props to Txt options', function() {
 	assert.strictEqual(txt._rootElem.node.events.click, click);
 	assert.strictEqual(txt._duration, 0);
 	assert.strictEqual(txt._rootElem.node.attributes.text, undefined);
+	assert.strictEqual(txt._rootElem.node.attributes.as, undefined);
+});
+
+test('supports as as an alias for tagName on JSX wrappers', function() {
+	let txt = jsx(Txt, { as: 'h1', text: 'Hello' });
+	let button = jsx(Button, { as: 'a', text: 'Go' });
+	let html = jsx(Html, { as: 'article', html: '<b>Hi</b>' });
+
+	assert.strictEqual(txt._rootElem.node.tagName, 'h1');
+	assert.strictEqual(button._rootElem.node.tagName, 'a');
+	assert.strictEqual(html._rootElem.node.tagName, 'article');
+});
+
+test('keeps explicit tagName precedence over as on JSX wrappers', function() {
+	let txt = jsx(Txt, {
+		as: 'h1',
+		tagName: 'strong',
+		text: 'Hello',
+	});
+
+	assert.strictEqual(txt._rootElem.node.tagName, 'strong');
 });
 
 test('exports shared mapJsxProps helper', function() {
@@ -409,19 +465,12 @@ test('rejects fragment syntax', function() {
 	}, /fragments are not supported/);
 });
 
-test('rejects Elem JSX without a single root child', function() {
-	assert.throws(function() {
-		jsx(Elem, {});
-	}, /requires exactly one root child/);
-
+test('rejects Elem JSX with non-string as values', function() {
 	assert.throws(function() {
 		jsx(Elem, {
-			children: [
-				jsx('span', { children: 'One' }),
-				jsx('span', { children: 'Two' }),
-			],
+			as: 7,
 		});
-	}, /requires exactly one root child/);
+	}, /Elem JSX as must be a string/);
 });
 
 test('rejects JSX component tags without fromJSX', function() {

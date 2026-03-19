@@ -7,6 +7,11 @@ class Html extends BaseHtml {
 	static fromJSX(props) {
 		props = Object.assign({}, props);
 
+		if (props.hasOwnProperty('as') && !props.hasOwnProperty('tagName')) {
+			props.tagName = props.as;
+		}
+		delete props.as;
+
 		assertNoChildren('Html', props);
 
 		return new Html(props.html || "", mapJsxProps(props, {

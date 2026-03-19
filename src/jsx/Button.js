@@ -7,6 +7,11 @@ class Button extends BaseButton {
 	static fromJSX(props) {
 		props = Object.assign({}, props);
 
+		if (props.hasOwnProperty('as') && !props.hasOwnProperty('tagName')) {
+			props.tagName = props.as;
+		}
+		delete props.as;
+
 		assertNoChildren('Button', props);
 
 		let opt = mapJsxProps(props, {
