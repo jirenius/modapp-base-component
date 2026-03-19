@@ -1,28 +1,11 @@
 const jsxNodeIdProp = '__jsxNodeId';
 
-function hasOwn(obj, key) {
-	return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
-}
-
-function isElemNode(value) {
-	return !!value &&
-		typeof value === 'object' &&
-		(hasOwn(value, 'tagName') ||
-			hasOwn(value, 'text') ||
-			hasOwn(value, 'html') ||
-			hasOwn(value, 'component'));
-}
-
-function isRenderableComponent(value) {
-	return !!value &&
-		typeof value === 'object' &&
-		typeof value.render === 'function';
-}
+import { hasOwn, isJsxComponentNode, isJsxElementObject, isJsxTextNode, isRenderableComponent } from './jsx/jsxShared.js';
 
 function wrapRenderableComponent(component) {
 	let node = { component };
 	if (hasOwn(component, jsxNodeIdProp)) {
-		node.id = component[jsxNodeIdProp];
+		node.nodeId = component[jsxNodeIdProp];
 	}
 	return node;
 }
@@ -44,7 +27,7 @@ function pushJsxChild(list, child) {
 		return;
 	}
 
-	if (typeof child === 'function' || isElemNode(child)) {
+	if (isJsxElementObject(child) || isJsxTextNode(child) || isJsxComponentNode(child)) {
 		list.push(child);
 		return;
 	}
@@ -60,9 +43,7 @@ function pushJsxChild(list, child) {
 function normalizeJsxChildren(children) {
 	let list = [];
 	pushJsxChild(list, children);
-	return list.length
-		? list
-		: null;
+	return list;
 }
 
 function setJsxNodeId(component, nodeId) {
@@ -80,4 +61,4 @@ function setJsxNodeId(component, nodeId) {
 	return component;
 }
 
-export { isRenderableComponent, normalizeJsxChildren, setJsxNodeId };
+export { normalizeJsxChildren, setJsxNodeId };

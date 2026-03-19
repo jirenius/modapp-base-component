@@ -1,29 +1,30 @@
-import { isRenderableComponent, normalizeJsxChildren, setJsxNodeId } from './jsxChildren.js';
-import mapJsxProps from './mapJsxProps.js';
+import { setJsxNodeId } from './jsxChildren.js';
+import { createStructuredElement } from './jsx/jsxObject.js';
+import { hasOwn, isRenderableComponent } from './jsx/jsxShared.js';
 
 const Fragment = { __modappFragment: true };
 
-function hasOwn(obj, key) {
-	return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
-}
-
 function getUnsupportedTypeError(type) {
 	if (type === Fragment) {
-		return new Error("JSX fragments are not supported by modapp-base-component v1.");
+		return new Error("JSX fragments are not supported.");
 	}
 
-	return new Error("JSX component tags must expose a static fromJSX(props) adapter in modapp-base-component.");
+	return new Error("JSX component tags must expose a static fromJSX(props) adapter.");
 }
 
 function getInvalidAdapterError(type) {
 	let name = type && type.name
 		? type.name
 		: 'Component';
-	return new Error(name + ".fromJSX(props) must return a renderable component instance.");
+	return new Error(name + ".fromJSX(props) must return a component instance.");
 }
 
-function createNode(type, props) {
-	if (typeof type !== 'string') {
+function createJsxValue(type, props) {
+	if (typeof type === 'string') {
+		return createStructuredElement(type, props);
+	}
+
+	if (type !== Fragment) {
 		if (!type || typeof type.fromJSX !== 'function') {
 			throw getUnsupportedTypeError(type);
 		}
@@ -40,28 +41,13 @@ function createNode(type, props) {
 		return component;
 	}
 
-	props = props || {};
-
-	let node = { tagName: type };
-
-	if (hasOwn(props, 'nodeId')) {
-		node.id = props.nodeId;
-	}
-
-	Object.assign(node, mapJsxProps(props));
-
-	let children = normalizeJsxChildren(props.children);
-	if (children) {
-		node.children = children;
-	}
-
-	return node;
+	throw getUnsupportedTypeError(type);
 }
 
 function jsx(type, props) {
-	return createNode(type, props);
+	return createJsxValue(type, props);
 }
 
 const jsxs = jsx;
 
-export { Fragment, jsx, jsxs };
+export { Fragment, createStructuredElement, jsx, jsxs };

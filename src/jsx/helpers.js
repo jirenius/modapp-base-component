@@ -1,9 +1,5 @@
-import { normalizeJsxChildren } from '../jsxChildren.js';
+import { hasOwn, isJsxElementObject, isRenderableComponent } from './jsxShared.js';
 import Elem from './Elem.js';
-
-function hasOwn(obj, key) {
-	return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
-}
 
 function assertNoChildren(name, props) {
 	if (hasOwn(props, 'children')) {
@@ -11,8 +7,53 @@ function assertNoChildren(name, props) {
 	}
 }
 
+function isOldElemNode(value) {
+	return !!value &&
+		typeof value === 'object' &&
+		(hasOwn(value, 'tagName') ||
+			hasOwn(value, 'text') ||
+			hasOwn(value, 'html') ||
+			hasOwn(value, 'component'));
+}
+
+function wrapRenderableComponent(component) {
+	return { component };
+}
+
+function pushJsxPropChild(list, child) {
+	if (child === null || typeof child === 'undefined' || typeof child === 'boolean') {
+		return;
+	}
+
+	if (Array.isArray(child)) {
+		for (let i = 0; i < child.length; i++) {
+			pushJsxPropChild(list, child[i]);
+		}
+		return;
+	}
+
+	if (typeof child === 'string' || typeof child === 'number' || typeof child === 'function') {
+		list.push(child);
+		return;
+	}
+
+	if (isOldElemNode(child) || isJsxElementObject(child)) {
+		list.push(child);
+		return;
+	}
+
+	if (isRenderableComponent(child)) {
+		list.push(wrapRenderableComponent(child));
+		return;
+	}
+
+	throw new Error("Unsupported JSX child type.");
+}
+
 function getJsxChildren(props) {
-	return normalizeJsxChildren(props && props.children) || [];
+	let list = [];
+	pushJsxPropChild(list, props && props.children);
+	return list;
 }
 
 function getSingleJsxChild(name, props) {

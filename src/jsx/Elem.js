@@ -1,8 +1,18 @@
 import BaseElem from '../Elem.js';
-import mapJsxProps from '../mapJsxProps.js';
-import { normalizeJsxChildren } from '../jsxChildren.js';
+import { createStructuredElement } from '../jsx-runtime.js';
+import { isJsxElementObject, prepareJsxNode } from './jsxObjectNode.js';
 
 class Elem extends BaseElem {
+
+	constructor(node) {
+		super(isJsxElementObject(node)
+			? prepareJsxNode(node)
+			: node);
+	}
+
+	setJsxObject(jsxObject) {
+		return this.setRootNode(prepareJsxNode(jsxObject));
+	}
 
 	static fromJSX(props) {
 		props = props || {};
@@ -24,19 +34,7 @@ class Elem extends BaseElem {
 			delete elementProps.as;
 		}
 
-		let node = { tagName };
-		if (Object.prototype.hasOwnProperty.call(elementProps, 'nodeId')) {
-			node.id = elementProps.nodeId;
-		}
-
-		Object.assign(node, mapJsxProps(elementProps));
-
-		let children = normalizeJsxChildren(elementProps.children);
-		if (children) {
-			node.children = children;
-		}
-
-		return new Elem(node);
+		return new Elem(createStructuredElement(tagName, elementProps));
 	}
 }
 

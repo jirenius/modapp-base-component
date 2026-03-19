@@ -44,24 +44,38 @@ test('creates nested element nodes', function() {
 		],
 	});
 
-	assert.strictEqual(node.tagName, 'ul');
-	assert.strictEqual(node.className, 'example');
-	assert.strictEqual(node.children.length, 2);
-	assert.strictEqual(node.children[0].tagName, 'li');
-	assert.strictEqual(node.children[0].children[0].text, 'First item');
-	assert.strictEqual(node.children[1].children[0].text, 'Second item');
+	assert.strictEqual(node.type, 'ul');
+	assert.strictEqual(node.props.className, 'example');
+	assert.strictEqual(node.props.children.length, 2);
+	assert.strictEqual(node.props.children[0].type, 'li');
+	assert.strictEqual(node.props.children[0].props.children[0].text, 'First item');
+	assert.strictEqual(node.props.children[1].props.children[0].text, 'Second item');
 });
 
 test('maps inline components to component nodes', function() {
 	let txt = new BaseTxt("Second item");
 	let node = jsx('li', { children: txt });
 
-	assert.strictEqual(node.children.length, 1);
-	assert.strictEqual(node.children[0].component, txt);
+	assert.strictEqual(node.props.children.length, 1);
+	assert.strictEqual(node.props.children[0].component, txt);
+});
+
+test('supports class as an alias for className on lowercase JSX tags', function() {
+	let aliased = jsx('div', { class: 'from-class' });
+	let explicit = jsx('div', {
+		class: 'from-class',
+		className: 'from-className',
+	});
+
+	assert.strictEqual(aliased.props.className, 'from-class');
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(aliased.props, 'class'), false);
+	assert.strictEqual(explicit.props.className, 'from-className');
+	assert.strictEqual(Object.prototype.hasOwnProperty.call(explicit.props, 'class'), false);
 });
 
 test('keeps base exports free from JSX helpers', function() {
 	assert.strictEqual(typeof BaseElem.fromJSX, 'undefined');
+	assert.strictEqual(typeof BaseElem.prototype.setJsxObject, 'undefined');
 	assert.strictEqual(typeof BaseTxt.fromJSX, 'undefined');
 	assert.strictEqual(typeof BaseIndexModule.mapJsxProps, 'undefined');
 	assert.strictEqual(typeof BaseIndexModule.Button.fromJSX, 'undefined');
@@ -210,6 +224,22 @@ test('returns Elem instances for JSX Elem tags', function() {
 	assert.strictEqual(elem.node.children[0].children[0].text, 'Hello');
 });
 
+test('supports structured JSX objects in Elem constructor and setJsxObject', function() {
+	let jsxObject = jsx('div', {
+		className: 'example',
+		children: jsx('span', { children: 'Hello' }),
+	});
+	let elem = new Elem(jsxObject);
+
+	assert.strictEqual(elem.node.tagName, 'div');
+	assert.strictEqual(elem.node.className, 'example');
+	assert.strictEqual(elem.node.children[0].tagName, 'span');
+
+	elem.setJsxObject(jsx('section', { children: 'Bye' }));
+	assert.strictEqual(elem.node.tagName, 'section');
+	assert.strictEqual(elem.node.children[0].text, 'Bye');
+});
+
 test('wraps JSX component roots inside Elem tags', function() {
 	let elem = jsx(Elem, {
 		as: 'section',
@@ -249,9 +279,9 @@ test('embeds JSX component tag results into element child nodes', function() {
 		children: jsx(Txt, { text: 'Hello' }),
 	});
 
-	assert.strictEqual(node.children.length, 1);
-	assert.ok(node.children[0].component instanceof Txt);
-	assert.strictEqual(node.children[0].component.getText(), 'Hello');
+	assert.strictEqual(node.props.children.length, 1);
+	assert.ok(node.props.children[0].component instanceof Txt);
+	assert.strictEqual(node.props.children[0].component.getText(), 'Hello');
 });
 
 test('preserves nodeId for JSX component tags embedded in Elem trees', function() {
@@ -351,9 +381,10 @@ test('keeps nodeId separate from DOM id', function() {
 		htmlFor: 'field-id',
 	});
 
-	assert.strictEqual(node.id, 'labelNode');
-	assert.strictEqual(node.attributes.id, 'dom-id');
-	assert.strictEqual(node.attributes.for, 'field-id');
+	assert.strictEqual(node.type, 'label');
+	assert.strictEqual(node.props.nodeId, 'labelNode');
+	assert.strictEqual(node.props.id, 'dom-id');
+	assert.strictEqual(node.props.htmlFor, 'field-id');
 });
 
 test('maps properties, attributes, events, and style', function() {
@@ -373,11 +404,15 @@ test('maps properties, attributes, events, and style', function() {
 		events: { click: explicitClick },
 	});
 
-	assert.strictEqual(node.className, 'field');
-	assert.deepStrictEqual(node.style, { display: 'none' });
-	assert.deepStrictEqual(node.attributes, { type: 'radio', role: 'switch' });
-	assert.deepStrictEqual(node.properties, { value: 'beta', checked: true });
-	assert.strictEqual(node.events.click, explicitClick);
+	assert.strictEqual(node.type, 'input');
+	assert.strictEqual(node.props.className, 'field');
+	assert.deepStrictEqual(node.props.style, { display: 'none' });
+	assert.deepStrictEqual(node.props.attributes, { type: 'radio', role: 'switch' });
+	assert.deepStrictEqual(node.props.properties, { value: 'beta' });
+	assert.strictEqual(node.props.events.click, explicitClick);
+	assert.strictEqual(node.props.value, 'alpha');
+	assert.strictEqual(node.props.checked, true);
+	assert.strictEqual(node.props.onClick, click);
 });
 
 test('mapJsxProps maps shared RootElem props', function() {
@@ -445,18 +480,18 @@ test('flattens child arrays and ignores empty children', function() {
 		],
 	});
 
-	assert.strictEqual(node.children.length, 3);
-	assert.strictEqual(node.children[0].text, 'start');
-	assert.strictEqual(node.children[1].text, '7');
-	assert.strictEqual(node.children[2], emNode);
+	assert.strictEqual(node.props.children.length, 3);
+	assert.strictEqual(node.props.children[0].text, 'start');
+	assert.strictEqual(node.props.children[1].text, '7');
+	assert.strictEqual(node.props.children[2], emNode);
 });
 
-test('preserves builder functions as children', function() {
+test('rejects builder functions as lowercase JSX children', function() {
 	let builder = function(n) { return n.text('from builder'); };
-	let node = jsx('div', { children: builder });
 
-	assert.strictEqual(node.children.length, 1);
-	assert.strictEqual(node.children[0], builder);
+	assert.throws(function() {
+		jsx('div', { children: builder });
+	}, /Unsupported JSX child type/);
 });
 
 test('rejects fragment syntax', function() {
@@ -565,5 +600,5 @@ test('rejects invalid fromJSX return values', function() {
 
 	assert.throws(function() {
 		jsx(InvalidComponent, {});
-	}, /must return a renderable component instance/);
+	}, /must return a component instance/);
 });
