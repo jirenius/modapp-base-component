@@ -28,7 +28,7 @@ txt.render(document.body);
 
 ### JSX with `Elem`
 
-JSX can be used as authoring syntax for `Elem` node trees. JSX does not render anything by itself. It is compiled into the same plain node objects that `Elem` already accepts.
+JSX can be used as authoring syntax for `Elem` trees. JSX does not render anything by itself. Lowercase tags compile into structured JSX values that the opt-in JSX `Elem` adapter knows how to consume.
 JSX support is opt-in through the `modapp-base-component/jsx` entrypoint, so the base package stays free from JSX adapter code unless you choose to use it.
 
 Install `babel/preset-react`:
@@ -74,7 +74,7 @@ And make sure to allow jsx in the eslint config:
 }
 ```
 
-Lowercase tags create `Elem` node objects used with `new Elem(...)`:
+Lowercase tags create structured JSX values used with `new Elem(...)`:
 
 ```javascript
 import { Elem, Txt } from 'modapp-base-component/jsx';
@@ -111,7 +111,7 @@ The `modapp-base-component/jsx` entrypoint exports JSX-enabled wrappers for the 
 
 Custom JSX component tags must expose a static `fromJSX(props)` method that returns a renderable component instance.
 
-For `RootElem`-based components, reuse the same prop mapping as the lowercase JSX runtime through `mapJsxProps`:
+For `RootElem`-based components, reuse the same prop mapping through `mapJsxProps`:
 
 ```javascript
 import { mapJsxProps, Txt } from 'modapp-base-component/jsx';
